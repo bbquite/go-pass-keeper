@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package internal.proto;
+
+option go_package = "github.com/bbquite/go-pass-keeper/internal/proto";
+
+message AuthUserRequest {
+  string username = 1;
+  string password = 2;
+}
+
+message AuthUserResponse {
+  bool error = 1;
+  string msg = 2;
+}
+
+message RegisterUserRequest {
+  string username = 1;
+  string password = 2;
+  string email = 3;
+}
+
+message RegisterUserResponse {
+  bool error = 1;
+  string msg = 2;
+}
+
+service MetricService {
+  rpc AuthUser(AuthUserRequest) returns (AuthUserResponse);
+  rpc RegisterUser(RegisterUserRequest) returns (RegisterUserResponse);
+}
