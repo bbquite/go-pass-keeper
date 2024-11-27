@@ -3,8 +3,10 @@ package main
 import (
 	"flag"
 	"fmt"
-	app "github.com/bbquite/go-pass-keeper/internal/app/server"
 	"log"
+
+	"github.com/bbquite/go-pass-keeper/internal/app/server"
+	"go.uber.org/zap"
 )
 
 const (
@@ -24,17 +26,39 @@ func showBuildInfo() {
 	fmt.Printf("Build commit: %s\n", buildCommit)
 }
 
+func initServerLogger() (*zap.SugaredLogger, error) {
+	logger, err := zap.NewDevelopment()
+	if err != nil {
+		return nil, err
+	}
+	sugar := logger.Sugar()
+	defer logger.Sync()
+	return sugar, nil
+}
+
 func main() {
 	showBuildInfo()
 
-	cfg := new(app.ServerConfig)
+	logger, err := initServerLogger()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	cfg := new(server.ServerConfig)
 	flag.StringVar(&cfg.Host, "h", defServerHost, "HOST")
 	flag.StringVar(&cfg.DatabaseURI, "d", defDatabaseURI, "DB HOST")
 	flag.Parse()
 
-	srv, err := app.NewGRPCServer(cfg)
+	err = cfg.GetFromENV()
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal(err)
 	}
+	logger.Info(cfg.PrintConfig())
+
+	srv, err := server.NewGRPCServer(cfg, logger)
+	if err != nil {
+		logger.Fatal(err)
+	}
+
 	srv.RunGRPCServer()
 }
