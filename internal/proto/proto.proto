@@ -9,6 +9,8 @@ message ErrorResponse {
   string msg = 2;
 }
 
+message Empty {}
+
 message AuthUserRequest {
   string username = 1;
   string password = 2;
@@ -30,7 +32,49 @@ message RegisterUserResponse {
   ErrorResponse error = 2;
 }
 
+message PairsData {
+  string key = 1;
+  string pwd = 2;
+  string meta = 3;
+}
+
+message CreatePairsDataRequest{
+  PairsData pairs = 1;
+}
+
+message CreatePairsDataResponse{
+  PairsData pairs = 1;
+  ErrorResponse error = 2;
+}
+
+message GetPairsDataResponse{
+  repeated PairsData pairs = 1;
+  ErrorResponse error = 2;
+}
+
+message UpdatePairsDataRequest{
+  PairsData pairs = 1;
+}
+
+message DeletePairsDataRequest{
+  string key = 1;
+}
+
 service PassKeeperService {
   rpc AuthUser(AuthUserRequest) returns (AuthUserResponse);
   rpc RegisterUser(RegisterUserRequest) returns (RegisterUserResponse);
+
+  rpc CreatePairsData(CreatePairsDataRequest) returns (CreatePairsDataResponse);
+  rpc GetPairsData(Empty) returns (GetPairsDataResponse);
+  rpc UpdatePairsData(UpdatePairsDataRequest) returns (Empty);
+  rpc DeletePairsData(DeletePairsDataRequest) returns (Empty);
+
+//  rpc UploadSimpleData(RegisterUserRequest) returns (RegisterUserResponse);
+//  rpc GetSimpleData(RegisterUserRequest) returns (RegisterUserResponse);
+//
+//  rpc UploadBinaryData(RegisterUserRequest) returns (RegisterUserResponse);
+//  rpc GetBinaryData(RegisterUserRequest) returns (RegisterUserResponse);
+//
+//  rpc UploadCardData(RegisterUserRequest) returns (RegisterUserResponse);
+//  rpc GetCardData(RegisterUserRequest) returns (RegisterUserResponse);
 }

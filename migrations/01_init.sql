@@ -11,10 +11,10 @@ DO $$
         CREATE TABLE IF NOT EXISTS public.pairs_data(
             id serial PRIMARY KEY,
             account_id integer not null,
-            login VARCHAR (255) NOT NULL,
-            password VARCHAR (255) NOT NULL,
+            key VARCHAR (255) UNIQUE NOT NULL,
+            pwd VARCHAR (255) NOT NULL,
             meta VARCHAR (255),
-            created_on TIMESTAMP NOT NULL default CURRENT_TIMESTAMP,
+            uploaded_at TIMESTAMP NOT NULL default CURRENT_TIMESTAMP,
             FOREIGN KEY (account_id) REFERENCES public.account (id) ON DELETE CASCADE
         );
 
@@ -23,7 +23,7 @@ DO $$
             account_id integer not null,
             text_data TEXT NOT NULL,
             meta VARCHAR (255),
-            created_on TIMESTAMP NOT NULL default CURRENT_TIMESTAMP,
+            uploaded_at TIMESTAMP NOT NULL default CURRENT_TIMESTAMP,
             FOREIGN KEY (account_id) REFERENCES public.account (id) ON DELETE CASCADE
         );
 
@@ -32,7 +32,7 @@ DO $$
             account_id integer not null,
             binary_data bytea NOT NULL,
             meta VARCHAR (255),
-            created_on TIMESTAMP NOT NULL default CURRENT_TIMESTAMP,
+            uploaded_at TIMESTAMP NOT NULL default CURRENT_TIMESTAMP,
             FOREIGN KEY (account_id) REFERENCES public.account (id) ON DELETE CASCADE
         );
 
@@ -44,7 +44,7 @@ DO $$
             card_exp TIMESTAMP NOT NULL,
             card_cvv smallint NOT NULL,
             meta VARCHAR (255),
-            created_on TIMESTAMP NOT NULL default CURRENT_TIMESTAMP,
+            uploaded_at TIMESTAMP NOT NULL default CURRENT_TIMESTAMP,
             FOREIGN KEY (account_id) REFERENCES public.account (id) ON DELETE CASCADE
         );
     END

@@ -54,7 +54,7 @@ func (service *AuthService) RegisterUser(ctx context.Context, userData *models.U
 			}
 
 			tokenString, err := service.jwtManager.CreateAccessToken(userID)
-	
+
 			if err != nil {
 				return token, err
 			}
@@ -67,7 +67,7 @@ func (service *AuthService) RegisterUser(ctx context.Context, userData *models.U
 	return token, ErrUserAlreadyExists
 }
 
-func (service *AuthService) LoginUser(ctx context.Context, userData *models.UserLoginData) (jwttoken.JWT, error) {
+func (service *AuthService) AuthUser(ctx context.Context, userData *models.UserLoginData) (jwttoken.JWT, error) {
 	var token jwttoken.JWT
 
 	shaInputPassword := utils.GenerateSHAString(userData.Password)

@@ -19,3 +19,11 @@ type Account struct {
 	Password  string    `json:"password"`
 	CreatedOn time.Time `json:"created_on"`
 }
+
+type PairsData struct {
+	ID         uint32    `json:"id"`
+	Key        string    `json:"key"`
+	Pwd        string    `json:"pwd"`
+	Meta       string    `json:"meta"`
+	UploadedAt time.Time `json:"uploaded_at"`
+}
