@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"github.com/bbquite/go-pass-keeper/internal/app/server"
 	pb "github.com/bbquite/go-pass-keeper/internal/proto"
 	"github.com/bbquite/go-pass-keeper/internal/service"
 	"github.com/bbquite/go-pass-keeper/internal/storage"
@@ -16,10 +15,10 @@ type GRPCHandler struct {
 	logger      *zap.SugaredLogger
 }
 
-func NewGRPCHandler(cfg *server.ServerConfig, dbStorage *storage.DBStorage, logger *zap.SugaredLogger) *GRPCHandler {
+func NewGRPCHandler(jwtSecret string, dbStorage *storage.DBStorage, logger *zap.SugaredLogger) *GRPCHandler {
 
 	appService := service.NewAppService(dbStorage, logger)
-	authService := service.NewAuthService(dbStorage, cfg.JWTSecret, logger)
+	authService := service.NewAuthService(dbStorage, jwtSecret, logger)
 
 	return &GRPCHandler{
 		appService:  appService,

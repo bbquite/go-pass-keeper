@@ -29,7 +29,7 @@ func NewGRPCServer(cfg *ServerConfig, logger *zap.SugaredLogger) (*gRPCServer, e
 	if err != nil {
 		return nil, fmt.Errorf("database connection error: %v", err)
 	}
-	handler := handlers.NewGRPCHandler(cfg, dbStorage, logger)
+	handler := handlers.NewGRPCHandler(cfg.JWTSecret, dbStorage, logger)
 
 	return &gRPCServer{
 		cfg:       cfg,
