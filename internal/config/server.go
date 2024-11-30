@@ -1,8 +1,7 @@
-package server
+package config
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -38,7 +37,7 @@ func (c *ServerConfig) GetFromENV() error {
 	return nil
 }
 
-func (c *ServerConfig) PrintConfig() string {
+func (c *ServerConfig) PrintConfig() []byte {
 	jsonConfig, _ := json.Marshal(c)
-	return fmt.Sprintf("Server run with config: %s", jsonConfig)
+	return jsonConfig
 }

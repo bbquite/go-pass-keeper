@@ -1,4 +1,4 @@
-package service
+package server
 
 import (
 	"context"
@@ -6,25 +6,25 @@ import (
 	"go.uber.org/zap"
 )
 
-type appStorageRepo interface {
+type dataStorageRepo interface {
 	CreatePairsData(ctx context.Context, data models.PairsData) (uint32, error)
 	GetPairsData(ctx context.Context) ([]models.PairsData, error)
 	UpdatePairsData(ctx context.Context, data models.PairsData) error
 	DeletePairsData(ctx context.Context, id uint32) error
 }
 
-type AppService struct {
-	store  appStorageRepo
+type DataService struct {
+	store  dataStorageRepo
 	logger *zap.SugaredLogger
 }
 
-func NewAppService(store appStorageRepo, logger *zap.SugaredLogger) *AppService {
-	return &AppService{
+func NewDataService(store dataStorageRepo, logger *zap.SugaredLogger) *DataService {
+	return &DataService{
 		store:  store,
 		logger: logger.Named("APP"),
 	}
 }
 
-func (s *AppService) PingDatabase() error {
+func (s *DataService) PingDatabase() error {
 	return nil
 }

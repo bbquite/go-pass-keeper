@@ -5,7 +5,7 @@ import (
 	"errors"
 	"github.com/bbquite/go-pass-keeper/internal/models"
 	pb "github.com/bbquite/go-pass-keeper/internal/proto"
-	"github.com/bbquite/go-pass-keeper/internal/service"
+	serverServices "github.com/bbquite/go-pass-keeper/internal/service/server"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -21,7 +21,7 @@ func (s *GRPCHandler) RegisterUser(ctx context.Context, in *pb.RegisterUserReque
 	token, err := s.authService.RegisterUser(ctx, &userData)
 
 	if err != nil {
-		if errors.Is(err, service.ErrUserAlreadyExists) {
+		if errors.Is(err, serverServices.ErrUserAlreadyExists) {
 			s.logger.Info(err)
 			return &response, status.Error(codes.AlreadyExists, "user already exists")
 		}
@@ -45,7 +45,7 @@ func (s *GRPCHandler) AuthUser(ctx context.Context, in *pb.AuthUserRequest) (*pb
 	token, err := s.authService.AuthUser(ctx, &userData)
 
 	if err != nil {
-		if errors.Is(err, service.ErrIncorrectLoginData) {
+		if errors.Is(err, serverServices.ErrIncorrectLoginData) {
 			s.logger.Info(err)
 			return &response, status.Error(codes.Unauthenticated, "incorrect login or password")
 		}

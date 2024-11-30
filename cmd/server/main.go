@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/bbquite/go-pass-keeper/internal/config"
 	"log"
 
 	"github.com/bbquite/go-pass-keeper/internal/app/server"
@@ -44,7 +45,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	cfg := new(server.ServerConfig)
+	cfg := new(config.ServerConfig)
 	flag.StringVar(&cfg.Host, "h", defServerHost, "HOST")
 	flag.StringVar(&cfg.DatabaseURI, "d", defDatabaseURI, "DB HOST")
 	flag.Parse()
@@ -53,7 +54,7 @@ func main() {
 	if err != nil {
 		logger.Fatal(err)
 	}
-	logger.Info(cfg.PrintConfig())
+	logger.Infof("Server run with config: %s", cfg.PrintConfig())
 
 	srv, err := server.NewGRPCServer(cfg, logger)
 	if err != nil {

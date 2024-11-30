@@ -2,26 +2,26 @@ package handlers
 
 import (
 	pb "github.com/bbquite/go-pass-keeper/internal/proto"
-	"github.com/bbquite/go-pass-keeper/internal/service"
-	"github.com/bbquite/go-pass-keeper/internal/storage"
+	serverServices "github.com/bbquite/go-pass-keeper/internal/service/server"
+	"github.com/bbquite/go-pass-keeper/internal/storage/postgres"
 	"go.uber.org/zap"
 )
 
 type GRPCHandler struct {
 	pb.UnimplementedPassKeeperServiceServer
-	appService  *service.AppService
-	authService *service.AuthService
-	dbStorage   *storage.DBStorage
+	dataService *serverServices.DataService
+	authService *serverServices.AuthService
+	dbStorage   *postgres.DBStorage
 	logger      *zap.SugaredLogger
 }
 
-func NewGRPCHandler(jwtSecret string, dbStorage *storage.DBStorage, logger *zap.SugaredLogger) *GRPCHandler {
+func NewGRPCHandler(jwtSecret string, dbStorage *postgres.DBStorage, logger *zap.SugaredLogger) *GRPCHandler {
 
-	appService := service.NewAppService(dbStorage, logger)
-	authService := service.NewAuthService(dbStorage, jwtSecret, logger)
+	dataService := serverServices.NewDataService(dbStorage, logger)
+	authService := serverServices.NewAuthService(dbStorage, jwtSecret, logger)
 
 	return &GRPCHandler{
-		appService:  appService,
+		dataService: dataService,
 		authService: authService,
 		dbStorage:   dbStorage,
 		logger:      logger,

@@ -2,7 +2,9 @@ package server
 
 import (
 	"fmt"
+	"github.com/bbquite/go-pass-keeper/internal/config"
 	"github.com/bbquite/go-pass-keeper/internal/handlers"
+	"github.com/bbquite/go-pass-keeper/internal/storage/postgres"
 	"log"
 	"net"
 	"os"
@@ -10,22 +12,21 @@ import (
 	"syscall"
 
 	pb "github.com/bbquite/go-pass-keeper/internal/proto"
-	"github.com/bbquite/go-pass-keeper/internal/storage"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
 
 type gRPCServer struct {
-	cfg       *ServerConfig
-	dbStorage *storage.DBStorage
+	cfg       *config.ServerConfig
+	dbStorage *postgres.DBStorage
 	handler   *handlers.GRPCHandler
 	logger    *zap.SugaredLogger
 }
 
-func NewGRPCServer(cfg *ServerConfig, logger *zap.SugaredLogger) (*gRPCServer, error) {
+func NewGRPCServer(cfg *config.ServerConfig, logger *zap.SugaredLogger) (*gRPCServer, error) {
 
-	dbStorage, err := storage.NewDBStorage(cfg.DatabaseURI)
+	dbStorage, err := postgres.NewDBStorage(cfg.DatabaseURI)
 	if err != nil {
 		return nil, fmt.Errorf("database connection error: %v", err)
 	}
