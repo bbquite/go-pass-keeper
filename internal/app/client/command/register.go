@@ -4,9 +4,10 @@ import (
 	"bufio"
 	"context"
 	"fmt"
+	"io"
+
 	"github.com/bbquite/go-pass-keeper/internal/models"
 	"github.com/bbquite/go-pass-keeper/internal/service/client"
-	"io"
 )
 
 type RegisterCommand struct {
@@ -69,9 +70,5 @@ func (c *RegisterCommand) Execute() error {
 		return err
 	}
 
-	_, err = fmt.Fprintln(c.writer, "You have successfully registered")
-	if err != nil {
-		return err
-	}
 	return nil
 }

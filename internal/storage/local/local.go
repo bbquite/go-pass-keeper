@@ -1,16 +1,18 @@
 package local
 
 import (
+	"encoding/json"
+	"sync"
+
 	"github.com/bbquite/go-pass-keeper/internal/models"
 	jwttoken "github.com/bbquite/go-pass-keeper/pkg/jwt_token"
-	"sync"
 )
 
 type ClientStorage struct {
-	UserID    *uint32
-	Token     *jwttoken.JWT
-	PairsList []models.PairsData
-	mx        sync.RWMutex
+	UserID    *uint32            `json:"user_id"`
+	Token     *jwttoken.JWT      `json:"token"`
+	PairsList []models.PairsData `json:"pairs_list"`
+	mx        sync.RWMutex       `json:"-"`
 }
 
 func NewClientStorage() *ClientStorage {
@@ -40,4 +42,12 @@ func (storage *ClientStorage) AddPairs(data models.PairsData) error {
 	defer storage.mx.Unlock()
 	storage.PairsList = append(storage.PairsList, data)
 	return nil
+}
+
+func (storage *ClientStorage) Debug() ([]byte, error) {
+	test, err := json.Marshal(storage)
+	if err != nil {
+		return nil, err
+	}
+	return test, nil
 }

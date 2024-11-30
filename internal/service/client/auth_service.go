@@ -2,21 +2,26 @@ package client
 
 import (
 	"context"
+	"errors"
+
 	"github.com/bbquite/go-pass-keeper/internal/app/client"
 	"github.com/bbquite/go-pass-keeper/internal/models"
 	pb "github.com/bbquite/go-pass-keeper/internal/proto"
 	jwttoken "github.com/bbquite/go-pass-keeper/pkg/jwt_token"
 	"go.uber.org/zap"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
-//var (
-//	ErrUserAlreadyExists  = errors.New("user already exists")
-//	ErrIncorrectLoginData = errors.New("incorrect login or password")
-//)
+var (
+	ErrUserAlreadyExists  = errors.New("user already exists")
+	ErrIncorrectLoginData = errors.New("incorrect login or password")
+)
 
 type clientAuthStorageRepo interface {
 	SetUserID(userID *uint32) error
 	SetToken(token *jwttoken.JWT) error
+	Debug() ([]byte, error)
 }
 
 type ClientAuthService struct {
@@ -35,7 +40,7 @@ func NewClientAuthService(grpcClient *client.GRPCClient, store clientAuthStorage
 }
 
 func (service *ClientAuthService) RegisterUser(ctx context.Context, userData *models.UserRegisterData) error {
-	//var token jwttoken.JWT
+	var token jwttoken.JWT
 
 	resp, err := service.grpcClient.Client.RegisterUser(ctx, &pb.RegisterUserRequest{
 		Username: userData.Username,
@@ -44,12 +49,28 @@ func (service *ClientAuthService) RegisterUser(ctx context.Context, userData *mo
 	})
 
 	if err != nil {
-		service.logger.Error(err)
+		if e, ok := status.FromError(err); ok {
+			switch e.Code() {
+			case codes.AlreadyExists:
+				return ErrUserAlreadyExists
+			}
+		}
 		return err
 	}
 
-	service.logger.Debug(resp)
+	token.Token = resp.GetToken()
+	service.store.SetToken(&token)
+	service.logger.Infof("You have successfully registered")
 
+	return nil
+}
+
+func (service *ClientAuthService) Debug() error {
+	test, err := service.store.Debug()
+	if err != nil {
+		return err
+	}
+	service.logger.Debugf("%s", test)
 	return nil
 }
 

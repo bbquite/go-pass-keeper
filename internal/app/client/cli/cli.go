@@ -2,13 +2,14 @@ package cli
 
 import (
 	"fmt"
+	"os"
+	"strings"
+
 	"github.com/bbquite/go-pass-keeper/internal/app/client"
 	"github.com/bbquite/go-pass-keeper/internal/app/client/command"
 	clientService "github.com/bbquite/go-pass-keeper/internal/service/client"
 	"github.com/bbquite/go-pass-keeper/internal/storage/local"
 	"go.uber.org/zap"
-	"os"
-	"strings"
 )
 
 func RunCLI(grpcClient *client.GRPCClient, logger *zap.SugaredLogger) error {
@@ -17,6 +18,7 @@ func RunCLI(grpcClient *client.GRPCClient, logger *zap.SugaredLogger) error {
 
 	commandsRoot := []command.ClientCommand{
 		command.NewRegisterCommand(authService, os.Stdin, os.Stdout),
+		command.NewDebugCommand(authService),
 	}
 
 	commandNames := make([]string, len(commandsRoot))
@@ -26,7 +28,7 @@ func RunCLI(grpcClient *client.GRPCClient, logger *zap.SugaredLogger) error {
 		commandNames[i] = cmd.Name()
 	}
 
-	fmt.Println("Available commands: ", strings.Join(commandNames, "\n"))
+	fmt.Println("Available commands: \n-", strings.Join(commandNames, "\n- "))
 
 	for {
 		fmt.Print("Enter the command: ")
@@ -43,7 +45,7 @@ func RunCLI(grpcClient *client.GRPCClient, logger *zap.SugaredLogger) error {
 
 		err = cmd.Execute()
 		if err != nil {
-			logger.Errorf("error while executing command: %v", err)
+			logger.Infof("error while executing command: %v", err)
 		}
 	}
 }
