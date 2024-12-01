@@ -42,7 +42,7 @@ func NewClientAuthService(grpcClient *client.GRPCClient, store clientAuthStorage
 func (service *ClientAuthService) RegisterUser(ctx context.Context, userData *models.UserRegisterData) error {
 	var token jwttoken.JWT
 
-	resp, err := service.grpcClient.Client.RegisterUser(ctx, &pb.RegisterUserRequest{
+	resp, err := service.grpcClient.PBService.RegisterUser(ctx, &pb.RegisterUserRequest{
 		Username: userData.Username,
 		Password: userData.Password,
 		Email:    userData.Email,
@@ -74,8 +74,27 @@ func (service *ClientAuthService) Debug() error {
 	return nil
 }
 
-//func (service *ClientAuthService) AuthUser(ctx context.Context, userData *models.UserLoginData) error {
-//	var token jwttoken.JWT
-//
-//	return nil
-//}
+func (service *ClientAuthService) AuthUser(ctx context.Context, userData *models.UserLoginData) error {
+	var token jwttoken.JWT
+
+	resp, err := service.grpcClient.PBService.AuthUser(ctx, &pb.AuthUserRequest{
+		Username: userData.Username,
+		Password: userData.Password,
+	})
+
+	if err != nil {
+		if e, ok := status.FromError(err); ok {
+			switch e.Code() {
+			case codes.Unauthenticated:
+				return ErrIncorrectLoginData
+			}
+		}
+		return err
+	}
+
+	token.Token = resp.GetToken()
+	service.store.SetToken(&token)
+	service.logger.Infof("You have successfully auth")
+
+	return nil
+}

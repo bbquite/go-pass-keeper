@@ -33,7 +33,7 @@ func (c *RegisterCommand) Desc() string {
 }
 
 func (c *RegisterCommand) Usage() string {
-	return "TO BE ADDED"
+	return "\t\tlogin - login for account\n\t\tPassword - password for acc\n"
 }
 
 func (c *RegisterCommand) Execute() error {

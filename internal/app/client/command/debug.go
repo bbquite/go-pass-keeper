@@ -5,12 +5,12 @@ import (
 )
 
 type DebugCommand struct {
-	authService *client.ClientAuthService
+	dataService *client.ClientDataService
 }
 
-func NewDebugCommand(authService *client.ClientAuthService) *DebugCommand {
+func NewDebugCommand(dataService *client.ClientDataService) *DebugCommand {
 	return &DebugCommand{
-		authService: authService,
+		dataService: dataService,
 	}
 }
 
@@ -23,11 +23,11 @@ func (c *DebugCommand) Desc() string {
 }
 
 func (c *DebugCommand) Usage() string {
-	return "TO BE ADDED"
+	return "\t\tTO BE ADDED\n"
 }
 
 func (c *DebugCommand) Execute() error {
-	err := c.authService.Debug()
+	err := c.dataService.Debug()
 	if err != nil {
 		return err
 	}

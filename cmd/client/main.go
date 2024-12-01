@@ -4,7 +4,7 @@ import (
 	"flag"
 	"fmt"
 	clientApp "github.com/bbquite/go-pass-keeper/internal/app/client"
-	"github.com/bbquite/go-pass-keeper/internal/app/client/cli"
+	"github.com/bbquite/go-pass-keeper/internal/cli"
 	"github.com/bbquite/go-pass-keeper/internal/config"
 	"go.uber.org/zap"
 	"log"
@@ -60,7 +60,8 @@ func main() {
 		logger.Fatal(err)
 	}
 
-	err = cli.RunCLI(grpcClient, logger)
+	cliClient := cli.NewCustomCLI(grpcClient, logger)
+	err = cliClient.Run()
 	if err != nil {
 		logger.Fatal(err)
 	}

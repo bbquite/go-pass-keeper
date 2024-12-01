@@ -9,8 +9,8 @@ import (
 )
 
 type GRPCClient struct {
-	conn   *grpc.ClientConn
-	Client pb.PassKeeperServiceClient
+	conn      *grpc.ClientConn
+	PBService pb.PassKeeperServiceClient
 }
 
 func NewGRPCClient(serverAddress string, rootCertPath string) (*GRPCClient, error) {
@@ -24,11 +24,11 @@ func NewGRPCClient(serverAddress string, rootCertPath string) (*GRPCClient, erro
 		return nil, fmt.Errorf("error init gRPC client: %v", err)
 	}
 
-	client := pb.NewPassKeeperServiceClient(conn)
+	pbService := pb.NewPassKeeperServiceClient(conn)
 
 	return &GRPCClient{
-		conn:   conn,
-		Client: client,
+		conn:      conn,
+		PBService: pbService,
 	}, nil
 }
 

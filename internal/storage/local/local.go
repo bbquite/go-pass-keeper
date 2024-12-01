@@ -23,6 +23,13 @@ func NewClientStorage() *ClientStorage {
 	}
 }
 
+func (storage *ClientStorage) IsAuth() bool {
+	if storage.Token != nil {
+		return true
+	}
+	return false
+}
+
 func (storage *ClientStorage) SetUserID(userID *uint32) error {
 	storage.mx.Lock()
 	defer storage.mx.Unlock()
