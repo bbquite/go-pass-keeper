@@ -5,8 +5,6 @@ import (
 	"errors"
 
 	"github.com/bbquite/go-pass-keeper/internal/models"
-	"github.com/jackc/pgerrcode"
-	"github.com/jackc/pgx/v5/pgconn"
 	"go.uber.org/zap"
 )
 
@@ -38,10 +36,10 @@ func (service *DataService) CreatePairData(ctx context.Context, pairData *models
 
 	resultPairData, err := service.store.CreatePairData(ctx, pairData)
 	if err != nil {
-		pgErr := err.(*pgconn.PgError)
-		if pgErr.Code == pgerrcode.UniqueViolation {
-			return resultPairData, ErrUniqueViolation
-		}
+		//pgErr := err.(*pgconn.PgError)
+		//if pgErr.Code == pgerrcode.UniqueViolation {
+		//	return resultPairData, ErrUniqueViolation
+		//}
 
 		return resultPairData, err
 	}

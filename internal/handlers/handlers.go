@@ -4,6 +4,7 @@ import (
 	pb "github.com/bbquite/go-pass-keeper/internal/proto"
 	serverServices "github.com/bbquite/go-pass-keeper/internal/service/server"
 	"github.com/bbquite/go-pass-keeper/internal/storage/postgres"
+	jwttoken "github.com/bbquite/go-pass-keeper/pkg/jwt_token"
 	"go.uber.org/zap"
 )
 
@@ -15,10 +16,10 @@ type GRPCHandler struct {
 	logger      *zap.SugaredLogger
 }
 
-func NewGRPCHandler(jwtSecret string, dbStorage *postgres.DBStorage, logger *zap.SugaredLogger) *GRPCHandler {
+func NewGRPCHandler(jwtManager *jwttoken.JWTTokenManager, dbStorage *postgres.DBStorage, logger *zap.SugaredLogger) *GRPCHandler {
 
 	dataService := serverServices.NewDataService(dbStorage, logger)
-	authService := serverServices.NewAuthService(dbStorage, jwtSecret, logger)
+	authService := serverServices.NewAuthService(dbStorage, jwtManager, logger)
 
 	return &GRPCHandler{
 		dataService: dataService,

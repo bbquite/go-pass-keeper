@@ -2,11 +2,14 @@ package server
 
 import (
 	"fmt"
+	"github.com/bbquite/go-pass-keeper/internal/interceptors"
+	jwttoken "github.com/bbquite/go-pass-keeper/pkg/jwt_token"
 	"log"
 	"net"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/bbquite/go-pass-keeper/internal/config"
 	"github.com/bbquite/go-pass-keeper/internal/handlers"
@@ -19,10 +22,13 @@ import (
 )
 
 type gRPCServer struct {
-	cfg       *config.ServerConfig
-	dbStorage *postgres.DBStorage
-	handler   *handlers.GRPCHandler
-	logger    *zap.SugaredLogger
+	cfg           *config.ServerConfig
+	dbStorage     *postgres.DBStorage
+	handler       *handlers.GRPCHandler
+	interceptors  []grpc.UnaryServerInterceptor
+	jwtManager    *jwttoken.JWTTokenManager
+	noAuthMethods []string
+	logger        *zap.SugaredLogger
 }
 
 func NewGRPCServer(cfg *config.ServerConfig, logger *zap.SugaredLogger) (*gRPCServer, error) {
@@ -31,14 +37,34 @@ func NewGRPCServer(cfg *config.ServerConfig, logger *zap.SugaredLogger) (*gRPCSe
 	if err != nil {
 		return nil, fmt.Errorf("database connection error: %v", err)
 	}
-	handler := handlers.NewGRPCHandler(cfg.JWTSecret, dbStorage, logger)
 
-	return &gRPCServer{
-		cfg:       cfg,
-		handler:   handler,
-		dbStorage: dbStorage,
-		logger:    logger.Named("SERVER"),
-	}, nil
+	jwtManager := jwttoken.NewJWTTokenManager(time.Hour*3, cfg.JWTSecret)
+	handler := handlers.NewGRPCHandler(jwtManager, dbStorage, logger)
+
+	noAuthMethods := []string{""}
+
+	serverInit := &gRPCServer{
+		cfg:           cfg,
+		handler:       handler,
+		dbStorage:     dbStorage,
+		jwtManager:    jwtManager,
+		noAuthMethods: noAuthMethods,
+		logger:        logger.Named("SERVER"),
+	}
+
+	err = serverInit.loadServerInterceptors()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return serverInit, nil
+}
+
+func (s *gRPCServer) loadServerInterceptors() error {
+	var grpcServerInterceptors []grpc.UnaryServerInterceptor
+	grpcServerInterceptors = append(grpcServerInterceptors, interceptors.NewAuthInterceptor(s.jwtManager, s.noAuthMethods).Unary())
+	s.interceptors = grpcServerInterceptors
+	return nil
 }
 
 func (s *gRPCServer) RunGRPCServer() {
@@ -51,7 +77,7 @@ func (s *gRPCServer) RunGRPCServer() {
 		log.Fatalf("error occured while running gRPC server: %v", err)
 	}
 
-	grpcServer := grpc.NewServer()
+	grpcServer := grpc.NewServer(grpc.ChainUnaryInterceptor(s.interceptors...))
 	reflection.Register(grpcServer)
 	pb.RegisterPassKeeperServiceServer(grpcServer, s.handler)
 

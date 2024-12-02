@@ -4,8 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"time"
-
 	"github.com/bbquite/go-pass-keeper/internal/models"
 	"github.com/bbquite/go-pass-keeper/internal/utils"
 	jwttoken "github.com/bbquite/go-pass-keeper/pkg/jwt_token"
@@ -29,10 +27,7 @@ type AuthService struct {
 	jwtManager *jwttoken.JWTTokenManager
 }
 
-func NewAuthService(store authStorageRepo, secret string, logger *zap.SugaredLogger) *AuthService {
-
-	jwtManager := jwttoken.NewJWTTokenManager(time.Hour*3, secret)
-
+func NewAuthService(store authStorageRepo, jwtManager *jwttoken.JWTTokenManager, logger *zap.SugaredLogger) *AuthService {
 	return &AuthService{
 		store:      store,
 		logger:     logger.Named("AUTH"),
