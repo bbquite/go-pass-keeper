@@ -2,14 +2,15 @@ package server
 
 import (
 	"fmt"
-	"github.com/bbquite/go-pass-keeper/internal/config"
-	"github.com/bbquite/go-pass-keeper/internal/handlers"
-	"github.com/bbquite/go-pass-keeper/internal/storage/postgres"
 	"log"
 	"net"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/bbquite/go-pass-keeper/internal/config"
+	"github.com/bbquite/go-pass-keeper/internal/handlers"
+	"github.com/bbquite/go-pass-keeper/internal/storage/postgres"
 
 	pb "github.com/bbquite/go-pass-keeper/internal/proto"
 	"go.uber.org/zap"

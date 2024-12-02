@@ -33,18 +33,18 @@ message RegisterUserResponse {
 }
 
 message PairData {
-  string id = 1;
+  uint32 id = 1;
   string key = 2;
   string pwd = 3;
   string meta = 4;
   string UploadedAt = 5;
 }
 
-message CreatePairsDataRequest{
+message CreatePairDataRequest{
   PairData pair = 1;
 }
 
-message CreatePairsDataResponse{
+message CreatePairDataResponse{
   PairData pair = 1;
   ErrorResponse error = 2;
 }
@@ -54,11 +54,11 @@ message GetPairsDataResponse{
   ErrorResponse error = 2;
 }
 
-message UpdatePairsDataRequest{
+message UpdatePairDataRequest{
   PairData pair = 1;
 }
 
-message DeletePairsDataRequest{
+message DeletePairDataRequest{
   uint32 id = 1;
 }
 
@@ -66,10 +66,10 @@ service PassKeeperService {
   rpc AuthUser(AuthUserRequest) returns (AuthUserResponse);
   rpc RegisterUser(RegisterUserRequest) returns (RegisterUserResponse);
 
-  rpc CreatePairData(CreatePairsDataRequest) returns (CreatePairsDataResponse);
+  rpc CreatePairData(CreatePairDataRequest) returns (CreatePairDataResponse);
   rpc GetPairsDataList(Empty) returns (GetPairsDataResponse);
-  rpc UpdatePairData(UpdatePairsDataRequest) returns (Empty);
-  rpc DeletePairData(DeletePairsDataRequest) returns (Empty);
+  rpc UpdatePairData(UpdatePairDataRequest) returns (Empty);
+  rpc DeletePairData(DeletePairDataRequest) returns (Empty);
 
 //  rpc UploadSimpleData(RegisterUserRequest) returns (RegisterUserResponse);
 //  rpc GetSimpleData(RegisterUserRequest) returns (RegisterUserResponse);

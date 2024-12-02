@@ -11,7 +11,7 @@ DO $$
         CREATE TABLE IF NOT EXISTS public.pairs_data(
             id serial PRIMARY KEY,
             account_id integer not null,
-            key VARCHAR (255) UNIQUE NOT NULL,
+            key VARCHAR (255) NOT NULL,
             pwd VARCHAR (255) NOT NULL,
             meta VARCHAR (255),
             uploaded_at TIMESTAMP NOT NULL default CURRENT_TIMESTAMP,

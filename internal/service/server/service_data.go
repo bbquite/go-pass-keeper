@@ -2,8 +2,16 @@ package server
 
 import (
 	"context"
+	"errors"
+
 	"github.com/bbquite/go-pass-keeper/internal/models"
+	"github.com/jackc/pgerrcode"
+	"github.com/jackc/pgx/v5/pgconn"
 	"go.uber.org/zap"
+)
+
+var (
+	ErrUniqueViolation = errors.New("record already exists")
 )
 
 type dataStorageRepo interface {
@@ -30,6 +38,11 @@ func (service *DataService) CreatePairData(ctx context.Context, pairData *models
 
 	resultPairData, err := service.store.CreatePairData(ctx, pairData)
 	if err != nil {
+		pgErr := err.(*pgconn.PgError)
+		if pgErr.Code == pgerrcode.UniqueViolation {
+			return resultPairData, ErrUniqueViolation
+		}
+
 		return resultPairData, err
 	}
 
@@ -39,9 +52,9 @@ func (service *DataService) CreatePairData(ctx context.Context, pairData *models
 func (service *DataService) GetPairsDataList(ctx context.Context) ([]models.PairData, error) {
 	var resultPairsDataList []models.PairData
 
-	resultPairData, err := service.store.GetPairsDataList(ctx)
+	resultPairsDataList, err := service.store.GetPairsDataList(ctx)
 	if err != nil {
-		return resultPairData, err
+		return resultPairsDataList, err
 	}
 
 	return resultPairsDataList, nil

@@ -19,12 +19,12 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	PassKeeperService_AuthUser_FullMethodName        = "/internal.proto.PassKeeperService/AuthUser"
-	PassKeeperService_RegisterUser_FullMethodName    = "/internal.proto.PassKeeperService/RegisterUser"
-	PassKeeperService_CreatePairsData_FullMethodName = "/internal.proto.PassKeeperService/CreatePairsData"
-	PassKeeperService_GetPairsData_FullMethodName    = "/internal.proto.PassKeeperService/GetPairsData"
-	PassKeeperService_UpdatePairsData_FullMethodName = "/internal.proto.PassKeeperService/UpdatePairsData"
-	PassKeeperService_DeletePairsData_FullMethodName = "/internal.proto.PassKeeperService/DeletePairsData"
+	PassKeeperService_AuthUser_FullMethodName         = "/internal.proto.PassKeeperService/AuthUser"
+	PassKeeperService_RegisterUser_FullMethodName     = "/internal.proto.PassKeeperService/RegisterUser"
+	PassKeeperService_CreatePairData_FullMethodName   = "/internal.proto.PassKeeperService/CreatePairData"
+	PassKeeperService_GetPairsDataList_FullMethodName = "/internal.proto.PassKeeperService/GetPairsDataList"
+	PassKeeperService_UpdatePairData_FullMethodName   = "/internal.proto.PassKeeperService/UpdatePairData"
+	PassKeeperService_DeletePairData_FullMethodName   = "/internal.proto.PassKeeperService/DeletePairData"
 )
 
 // PassKeeperServiceClient is the client API for PassKeeperService service.
@@ -33,10 +33,10 @@ const (
 type PassKeeperServiceClient interface {
 	AuthUser(ctx context.Context, in *AuthUserRequest, opts ...grpc.CallOption) (*AuthUserResponse, error)
 	RegisterUser(ctx context.Context, in *RegisterUserRequest, opts ...grpc.CallOption) (*RegisterUserResponse, error)
-	CreatePairsData(ctx context.Context, in *CreatePairsDataRequest, opts ...grpc.CallOption) (*CreatePairsDataResponse, error)
-	GetPairsData(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*GetPairsDataResponse, error)
-	UpdatePairsData(ctx context.Context, in *UpdatePairsDataRequest, opts ...grpc.CallOption) (*Empty, error)
-	DeletePairsData(ctx context.Context, in *DeletePairsDataRequest, opts ...grpc.CallOption) (*Empty, error)
+	CreatePairData(ctx context.Context, in *CreatePairDataRequest, opts ...grpc.CallOption) (*CreatePairDataResponse, error)
+	GetPairsDataList(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*GetPairsDataResponse, error)
+	UpdatePairData(ctx context.Context, in *UpdatePairDataRequest, opts ...grpc.CallOption) (*Empty, error)
+	DeletePairData(ctx context.Context, in *DeletePairDataRequest, opts ...grpc.CallOption) (*Empty, error)
 }
 
 type passKeeperServiceClient struct {
@@ -67,40 +67,40 @@ func (c *passKeeperServiceClient) RegisterUser(ctx context.Context, in *Register
 	return out, nil
 }
 
-func (c *passKeeperServiceClient) CreatePairsData(ctx context.Context, in *CreatePairsDataRequest, opts ...grpc.CallOption) (*CreatePairsDataResponse, error) {
+func (c *passKeeperServiceClient) CreatePairData(ctx context.Context, in *CreatePairDataRequest, opts ...grpc.CallOption) (*CreatePairDataResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(CreatePairsDataResponse)
-	err := c.cc.Invoke(ctx, PassKeeperService_CreatePairsData_FullMethodName, in, out, cOpts...)
+	out := new(CreatePairDataResponse)
+	err := c.cc.Invoke(ctx, PassKeeperService_CreatePairData_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *passKeeperServiceClient) GetPairsData(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*GetPairsDataResponse, error) {
+func (c *passKeeperServiceClient) GetPairsDataList(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*GetPairsDataResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetPairsDataResponse)
-	err := c.cc.Invoke(ctx, PassKeeperService_GetPairsData_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, PassKeeperService_GetPairsDataList_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *passKeeperServiceClient) UpdatePairsData(ctx context.Context, in *UpdatePairsDataRequest, opts ...grpc.CallOption) (*Empty, error) {
+func (c *passKeeperServiceClient) UpdatePairData(ctx context.Context, in *UpdatePairDataRequest, opts ...grpc.CallOption) (*Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Empty)
-	err := c.cc.Invoke(ctx, PassKeeperService_UpdatePairsData_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, PassKeeperService_UpdatePairData_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *passKeeperServiceClient) DeletePairsData(ctx context.Context, in *DeletePairsDataRequest, opts ...grpc.CallOption) (*Empty, error) {
+func (c *passKeeperServiceClient) DeletePairData(ctx context.Context, in *DeletePairDataRequest, opts ...grpc.CallOption) (*Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Empty)
-	err := c.cc.Invoke(ctx, PassKeeperService_DeletePairsData_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, PassKeeperService_DeletePairData_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -113,10 +113,10 @@ func (c *passKeeperServiceClient) DeletePairsData(ctx context.Context, in *Delet
 type PassKeeperServiceServer interface {
 	AuthUser(context.Context, *AuthUserRequest) (*AuthUserResponse, error)
 	RegisterUser(context.Context, *RegisterUserRequest) (*RegisterUserResponse, error)
-	CreatePairsData(context.Context, *CreatePairsDataRequest) (*CreatePairsDataResponse, error)
-	GetPairsData(context.Context, *Empty) (*GetPairsDataResponse, error)
-	UpdatePairsData(context.Context, *UpdatePairsDataRequest) (*Empty, error)
-	DeletePairsData(context.Context, *DeletePairsDataRequest) (*Empty, error)
+	CreatePairData(context.Context, *CreatePairDataRequest) (*CreatePairDataResponse, error)
+	GetPairsDataList(context.Context, *Empty) (*GetPairsDataResponse, error)
+	UpdatePairData(context.Context, *UpdatePairDataRequest) (*Empty, error)
+	DeletePairData(context.Context, *DeletePairDataRequest) (*Empty, error)
 	mustEmbedUnimplementedPassKeeperServiceServer()
 }
 
@@ -133,17 +133,17 @@ func (UnimplementedPassKeeperServiceServer) AuthUser(context.Context, *AuthUserR
 func (UnimplementedPassKeeperServiceServer) RegisterUser(context.Context, *RegisterUserRequest) (*RegisterUserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RegisterUser not implemented")
 }
-func (UnimplementedPassKeeperServiceServer) CreatePairsData(context.Context, *CreatePairsDataRequest) (*CreatePairsDataResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CreatePairsData not implemented")
+func (UnimplementedPassKeeperServiceServer) CreatePairData(context.Context, *CreatePairDataRequest) (*CreatePairDataResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreatePairData not implemented")
 }
-func (UnimplementedPassKeeperServiceServer) GetPairsData(context.Context, *Empty) (*GetPairsDataResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetPairsData not implemented")
+func (UnimplementedPassKeeperServiceServer) GetPairsDataList(context.Context, *Empty) (*GetPairsDataResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetPairsDataList not implemented")
 }
-func (UnimplementedPassKeeperServiceServer) UpdatePairsData(context.Context, *UpdatePairsDataRequest) (*Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UpdatePairsData not implemented")
+func (UnimplementedPassKeeperServiceServer) UpdatePairData(context.Context, *UpdatePairDataRequest) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdatePairData not implemented")
 }
-func (UnimplementedPassKeeperServiceServer) DeletePairsData(context.Context, *DeletePairsDataRequest) (*Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DeletePairsData not implemented")
+func (UnimplementedPassKeeperServiceServer) DeletePairData(context.Context, *DeletePairDataRequest) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeletePairData not implemented")
 }
 func (UnimplementedPassKeeperServiceServer) mustEmbedUnimplementedPassKeeperServiceServer() {}
 func (UnimplementedPassKeeperServiceServer) testEmbeddedByValue()                           {}
@@ -202,74 +202,74 @@ func _PassKeeperService_RegisterUser_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
-func _PassKeeperService_CreatePairsData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreatePairsDataRequest)
+func _PassKeeperService_CreatePairData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreatePairDataRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(PassKeeperServiceServer).CreatePairsData(ctx, in)
+		return srv.(PassKeeperServiceServer).CreatePairData(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: PassKeeperService_CreatePairsData_FullMethodName,
+		FullMethod: PassKeeperService_CreatePairData_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PassKeeperServiceServer).CreatePairsData(ctx, req.(*CreatePairsDataRequest))
+		return srv.(PassKeeperServiceServer).CreatePairData(ctx, req.(*CreatePairDataRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _PassKeeperService_GetPairsData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _PassKeeperService_GetPairsDataList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(PassKeeperServiceServer).GetPairsData(ctx, in)
+		return srv.(PassKeeperServiceServer).GetPairsDataList(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: PassKeeperService_GetPairsData_FullMethodName,
+		FullMethod: PassKeeperService_GetPairsDataList_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PassKeeperServiceServer).GetPairsData(ctx, req.(*Empty))
+		return srv.(PassKeeperServiceServer).GetPairsDataList(ctx, req.(*Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _PassKeeperService_UpdatePairsData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdatePairsDataRequest)
+func _PassKeeperService_UpdatePairData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdatePairDataRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(PassKeeperServiceServer).UpdatePairsData(ctx, in)
+		return srv.(PassKeeperServiceServer).UpdatePairData(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: PassKeeperService_UpdatePairsData_FullMethodName,
+		FullMethod: PassKeeperService_UpdatePairData_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PassKeeperServiceServer).UpdatePairsData(ctx, req.(*UpdatePairsDataRequest))
+		return srv.(PassKeeperServiceServer).UpdatePairData(ctx, req.(*UpdatePairDataRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _PassKeeperService_DeletePairsData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeletePairsDataRequest)
+func _PassKeeperService_DeletePairData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeletePairDataRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(PassKeeperServiceServer).DeletePairsData(ctx, in)
+		return srv.(PassKeeperServiceServer).DeletePairData(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: PassKeeperService_DeletePairsData_FullMethodName,
+		FullMethod: PassKeeperService_DeletePairData_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PassKeeperServiceServer).DeletePairsData(ctx, req.(*DeletePairsDataRequest))
+		return srv.(PassKeeperServiceServer).DeletePairData(ctx, req.(*DeletePairDataRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -290,20 +290,20 @@ var PassKeeperService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _PassKeeperService_RegisterUser_Handler,
 		},
 		{
-			MethodName: "CreatePairsData",
-			Handler:    _PassKeeperService_CreatePairsData_Handler,
+			MethodName: "CreatePairData",
+			Handler:    _PassKeeperService_CreatePairData_Handler,
 		},
 		{
-			MethodName: "GetPairsData",
-			Handler:    _PassKeeperService_GetPairsData_Handler,
+			MethodName: "GetPairsDataList",
+			Handler:    _PassKeeperService_GetPairsDataList_Handler,
 		},
 		{
-			MethodName: "UpdatePairsData",
-			Handler:    _PassKeeperService_UpdatePairsData_Handler,
+			MethodName: "UpdatePairData",
+			Handler:    _PassKeeperService_UpdatePairData_Handler,
 		},
 		{
-			MethodName: "DeletePairsData",
-			Handler:    _PassKeeperService_DeletePairsData_Handler,
+			MethodName: "DeletePairData",
+			Handler:    _PassKeeperService_DeletePairData_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
