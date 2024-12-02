@@ -9,10 +9,10 @@ import (
 )
 
 type ClientStorage struct {
-	UserID    *uint32            `json:"user_id"`
-	Token     *jwttoken.JWT      `json:"token"`
-	PairsList []models.PairsData `json:"pairs_list"`
-	mx        sync.RWMutex       `json:"-"`
+	UserID    *uint32           `json:"user_id"`
+	Token     *jwttoken.JWT     `json:"token"`
+	PairsList []models.PairData `json:"pairs_list"`
+	mx        sync.RWMutex      `json:"-"`
 }
 
 func NewClientStorage() *ClientStorage {
@@ -44,7 +44,7 @@ func (storage *ClientStorage) SetToken(token *jwttoken.JWT) error {
 	return nil
 }
 
-func (storage *ClientStorage) AddPairs(data models.PairsData) error {
+func (storage *ClientStorage) AddPairs(data models.PairData) error {
 	storage.mx.Lock()
 	defer storage.mx.Unlock()
 	storage.PairsList = append(storage.PairsList, data)

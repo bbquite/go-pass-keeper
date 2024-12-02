@@ -20,7 +20,7 @@ type Account struct {
 	CreatedOn time.Time `json:"created_on"`
 }
 
-type PairsData struct {
+type PairData struct {
 	ID         uint32    `json:"id"`
 	Key        string    `json:"key"`
 	Pwd        string    `json:"pwd"`

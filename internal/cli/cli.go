@@ -17,7 +17,7 @@ type commandsNames []string
 type commandsMap map[string]command.ClientCommand
 type commandUsage string
 
-type CustomCLI struct {
+type ClientCLI struct {
 	localStorage *local.ClientStorage
 	authService  *clientService.ClientAuthService
 	dataService  *clientService.ClientDataService
@@ -28,7 +28,7 @@ type CustomCLI struct {
 	logger       *zap.SugaredLogger
 }
 
-func NewCustomCLI(grpcClient *client.GRPCClient, logger *zap.SugaredLogger) *CustomCLI {
+func NewClientCLI(grpcClient *client.GRPCClient, logger *zap.SugaredLogger) *ClientCLI {
 
 	localStorage := local.NewClientStorage()
 	authService := clientService.NewClientAuthService(grpcClient, localStorage, logger)
@@ -40,16 +40,16 @@ func NewCustomCLI(grpcClient *client.GRPCClient, logger *zap.SugaredLogger) *Cus
 		command.NewDebugCommand(dataService),
 	}
 
-	namesList, cMap, usageInfo := buildCommandsInfo(commandsRoot)
+	cNames, cMap, cUsage := buildCommandsInfo(commandsRoot)
 
-	return &CustomCLI{
+	return &ClientCLI{
 		localStorage: localStorage,
 		authService:  authService,
 		dataService:  dataService,
 		commandsRoot: commandsRoot,
-		cNames:       namesList,
+		cNames:       cNames,
 		cMap:         cMap,
-		cUsage:       usageInfo,
+		cUsage:       cUsage,
 		logger:       logger.Named("CLI"),
 	}
 }
@@ -72,7 +72,7 @@ func buildCommandsInfo(commandsRoot []command.ClientCommand) (commandsNames, com
 	return cNames, cMap, commandUsage(cUsage)
 }
 
-func (cli *CustomCLI) Run() error {
+func (cli *ClientCLI) Run() error {
 	for {
 		fmt.Print("Enter the command: ")
 		var input string

@@ -2,34 +2,35 @@ package postgres
 
 import (
 	"context"
-	"errors"
 	"github.com/bbquite/go-pass-keeper/internal/models"
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
-func (storage *DBStorage) CreatePairsData(ctx context.Context, data models.PairsData) (uint32, error) {
+func (storage *DBStorage) CreatePairData(ctx context.Context, data *models.PairData) (models.PairData, error) {
 	sqlString := `
 		INSERT INTO public.pairs_data (key, pwd, meta) 
 		VALUES ($1, $2, $3)
-		RETURNING id
+		RETURNING id, key, pwd, meta, uploaded_at
 	`
 
-	var pairsID uint32
+	var resultPairData models.PairData
 	row := storage.DB.QueryRowContext(ctx, sqlString, data.Key, data.Pwd, data.Meta)
-	err := row.Scan(&pairsID)
+	err := row.Scan(
+		&resultPairData.ID,
+		&resultPairData.Key,
+		&resultPairData.Pwd,
+		&resultPairData.Meta,
+		resultPairData.UploadedAt,
+	)
 	if err != nil {
-		return 0, err
+		return resultPairData, err
 	}
 
-	if pairsID == 0 {
-		return 0, errors.New("unspecified error while creating record")
-	}
-
-	return pairsID, nil
+	return resultPairData, nil
 }
 
-func (storage *DBStorage) GetPairsData(ctx context.Context) ([]models.PairsData, error) {
-	var result []models.PairsData
+func (storage *DBStorage) GetPairsDataList(ctx context.Context) ([]models.PairData, error) {
+	var result []models.PairData
 
 	sqlStringSelect := `
 		SELECT id, key, pwd, meta
@@ -45,9 +46,9 @@ func (storage *DBStorage) GetPairsData(ctx context.Context) ([]models.PairsData,
 	}
 
 	for rows.Next() {
-		var pairItem models.PairsData
+		var pairItem models.PairData
 
-		err := rows.Scan(&pairItem.ID, &pairItem.Key, &pairItem.Pwd, &pairItem.Meta)
+		err := rows.Scan(&pairItem.ID, &pairItem.Key, &pairItem.Pwd, &pairItem.Meta, &pairItem.UploadedAt)
 		if err != nil {
 			return nil, err
 		}
@@ -58,7 +59,7 @@ func (storage *DBStorage) GetPairsData(ctx context.Context) ([]models.PairsData,
 	return result, nil
 }
 
-func (storage *DBStorage) UpdatePairsData(ctx context.Context, data models.PairsData) error {
+func (storage *DBStorage) UpdatePairData(ctx context.Context, data *models.PairData) error {
 	sqlString := `
 		UPDATE public.pairs_data 
 		SET key=$1, pwd = $2, meta = $3
@@ -73,13 +74,13 @@ func (storage *DBStorage) UpdatePairsData(ctx context.Context, data models.Pairs
 	return nil
 }
 
-func (storage *DBStorage) DeletePairsData(ctx context.Context, id uint32) error {
+func (storage *DBStorage) DeletePairData(ctx context.Context, pairID uint32) error {
 	sqlString := `
 		DELETE FROM public.pairs_data
 		WHERE id = $1
 	`
 
-	_, err := storage.DB.ExecContext(ctx, sqlString, id)
+	_, err := storage.DB.ExecContext(ctx, sqlString, pairID)
 	if err != nil {
 		return err
 	}

@@ -60,7 +60,7 @@ func main() {
 		logger.Fatal(err)
 	}
 
-	cliClient := cli.NewCustomCLI(grpcClient, logger)
+	cliClient := cli.NewClientCLI(grpcClient, logger)
 	err = cliClient.Run()
 	if err != nil {
 		logger.Fatal(err)
