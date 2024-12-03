@@ -42,10 +42,6 @@ func (service *ClientDataService) CreatePairData(ctx context.Context, data *mode
 	return nil
 }
 
-func (service *ClientDataService) GetPairsDataList(ctx context.Context, data *models.PairData) error {
-	return nil
-}
-
 func (service *ClientDataService) UpdatePairData(ctx context.Context, data *models.PairData) error {
 	return nil
 }
@@ -54,50 +50,38 @@ func (service *ClientDataService) DeletePairData(ctx context.Context, data *mode
 	return nil
 }
 
-func (service *ClientDataService) CreateTextData(ctx context.Context) error {
+func (service *ClientDataService) CreateTextData(ctx context.Context, data *models.TextData) error {
 	return nil
 }
 
-func (service *ClientDataService) GetTextsDataList(ctx context.Context) error {
+func (service *ClientDataService) UpdateTextData(ctx context.Context, data *models.TextData) error {
 	return nil
 }
 
-func (service *ClientDataService) UpdateTextData(ctx context.Context) error {
+func (service *ClientDataService) DeleteTextData(ctx context.Context, data *models.TextData) error {
 	return nil
 }
 
-func (service *ClientDataService) DeleteTextData(ctx context.Context) error {
+func (service *ClientDataService) CreateBinaryData(ctx context.Context, data *models.BinaryData) error {
 	return nil
 }
 
-func (service *ClientDataService) CreateBinaryData(ctx context.Context) error {
+func (service *ClientDataService) UpdateBinaryData(ctx context.Context, data *models.BinaryData) error {
 	return nil
 }
 
-func (service *ClientDataService) GetBinaryDataList(ctx context.Context) error {
+func (service *ClientDataService) DeleteBinaryData(ctx context.Context, data *models.BinaryData) error {
 	return nil
 }
 
-func (service *ClientDataService) UpdateBinaryData(ctx context.Context) error {
+func (service *ClientDataService) CreateCardData(ctx context.Context, data *models.CardData) error {
 	return nil
 }
 
-func (service *ClientDataService) DeleteBinaryData(ctx context.Context) error {
+func (service *ClientDataService) UpdateCardData(ctx context.Context, data *models.CardData) error {
 	return nil
 }
 
-func (service *ClientDataService) CreateCardData(ctx context.Context) error {
-	return nil
-}
-
-func (service *ClientDataService) GetCardDataList(ctx context.Context) error {
-	return nil
-}
-
-func (service *ClientDataService) UpdateCardData(ctx context.Context) error {
-	return nil
-}
-
-func (service *ClientDataService) DeleteCardData(ctx context.Context) error {
+func (service *ClientDataService) DeleteCardData(ctx context.Context, data *models.CardData) error {
 	return nil
 }

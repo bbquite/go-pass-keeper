@@ -27,3 +27,27 @@ type PairData struct {
 	Meta       string    `json:"meta"`
 	UploadedAt time.Time `json:"uploaded_at"`
 }
+
+type TextData struct {
+	ID         uint32    `json:"id"`
+	Text       string    `json:"text"`
+	Meta       string    `json:"meta"`
+	UploadedAt time.Time `json:"uploaded_at"`
+}
+
+type BinaryData struct {
+	ID         uint32    `json:"id"`
+	Binary     []byte    `json:"binary"`
+	Meta       string    `json:"meta"`
+	UploadedAt time.Time `json:"uploaded_at"`
+}
+
+type CardData struct {
+	ID         uint32    `json:"id"`
+	CardNum    string    `json:"card_num"`
+	CardCvv    string    `json:"card_cvv"`
+	CardOwner  string    `json:"card_owner"`
+	CardExp    string    `json:"card_exp"`
+	Meta       string    `json:"meta"`
+	UploadedAt time.Time `json:"uploaded_at"`
+}

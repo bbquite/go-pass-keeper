@@ -4,15 +4,13 @@ import (
 	"context"
 	"fmt"
 	"github.com/bbquite/go-pass-keeper/internal/models"
-	"log"
 	"strconv"
 )
 
-func (cli *ClientCLI) createPairCommand(params map[string]string) error {
+func (cli *ClientCLI) createTextCommand(params map[string]string) error {
 	paramsV := cli.validateParams(params)
-	err := cli.dataService.CreatePairData(context.Background(), &models.PairData{
-		Key:  paramsV["key"],
-		Pwd:  paramsV["pwd"],
+	err := cli.dataService.CreateTextData(context.Background(), &models.TextData{
+		Text: paramsV["text"],
 		Meta: paramsV["meta"],
 	})
 	if err != nil {
@@ -21,7 +19,7 @@ func (cli *ClientCLI) createPairCommand(params map[string]string) error {
 	return nil
 }
 
-func (cli *ClientCLI) updatePairCommand(params map[string]string) error {
+func (cli *ClientCLI) updateTextCommand(params map[string]string) error {
 	paramsV := cli.validateParams(params)
 
 	idInt, err := strconv.ParseInt(paramsV["id"], 10, 32)
@@ -30,12 +28,9 @@ func (cli *ClientCLI) updatePairCommand(params map[string]string) error {
 	}
 	id := uint32(idInt)
 
-	log.Print(id)
-
-	err = cli.dataService.UpdatePairData(context.Background(), &models.PairData{
+	err = cli.dataService.UpdateTextData(context.Background(), &models.TextData{
 		ID:   id,
-		Key:  paramsV["key"],
-		Pwd:  paramsV["pwd"],
+		Text: paramsV["text"],
 		Meta: paramsV["meta"],
 	})
 	if err != nil {
@@ -44,7 +39,7 @@ func (cli *ClientCLI) updatePairCommand(params map[string]string) error {
 	return nil
 }
 
-func (cli *ClientCLI) deletePairCommand(params map[string]string) error {
+func (cli *ClientCLI) deleteTextCommand(params map[string]string) error {
 	paramsV := cli.validateParams(params)
 
 	idInt, err := strconv.ParseInt(paramsV["id"], 10, 32)
@@ -53,7 +48,7 @@ func (cli *ClientCLI) deletePairCommand(params map[string]string) error {
 	}
 	id := uint32(idInt)
 
-	err = cli.dataService.DeletePairData(context.Background(), &models.PairData{ID: id})
+	err = cli.dataService.DeleteTextData(context.Background(), &models.TextData{ID: id})
 	if err != nil {
 		return err
 	}

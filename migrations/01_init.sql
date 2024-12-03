@@ -42,7 +42,7 @@ DO $$
             card_num VARCHAR (64) NOT NULL,
             card_owner VARCHAR (255) NOT NULL,
             card_exp TIMESTAMP NOT NULL,
-            card_cvv smallint NOT NULL,
+            card_cvv VARCHAR (64) NOT NULL,
             meta VARCHAR (255),
             uploaded_at TIMESTAMP NOT NULL default CURRENT_TIMESTAMP,
             FOREIGN KEY (account_id) REFERENCES public.account (id) ON DELETE CASCADE

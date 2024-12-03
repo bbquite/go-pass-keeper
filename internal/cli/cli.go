@@ -114,21 +114,171 @@ func (cli *ClientCLI) InitCommandsThree() {
 				"TEXT": {
 					desc: "Creating text data",
 					execute: func() error {
-						log.Print("exec text")
+						params := commandParams{
+							"text": "",
+							"meta": "",
+						}
+						err := cli.createTextCommand(params)
+						if err != nil {
+							return err
+						}
 						return nil
 					},
 				},
 				"BINARY": {
 					desc: "Creating binary data",
 					execute: func() error {
-						log.Print("exec binary")
+						params := commandParams{
+							"filepath": "",
+							"meta":     "",
+						}
+						err := cli.createBinaryCommand(params)
+						if err != nil {
+							return err
+						}
 						return nil
 					},
 				},
 				"CARD": {
 					desc: "Creating card data",
 					execute: func() error {
-						log.Print("exec binary")
+						params := commandParams{
+							"card number": "",
+							"card cvv":    "",
+							"card owner":  "",
+							"card exp":    "",
+							"meta":        "",
+						}
+						err := cli.createCardCommand(params)
+						if err != nil {
+							return err
+						}
+						return nil
+					},
+				},
+			},
+		},
+		"UPDATE": {
+			desc: "Updating a record in the system",
+			subcommands: commandThree{
+				"PAIR": {
+					desc: "Updating a key value pair",
+					execute: func() error {
+						params := commandParams{
+							"id":   "",
+							"key":  "",
+							"pwd":  "",
+							"meta": "",
+						}
+						err := cli.updatePairCommand(params)
+						if err != nil {
+							return err
+						}
+						return nil
+					},
+				},
+				"TEXT": {
+					desc: "Updating text data",
+					execute: func() error {
+						params := commandParams{
+							"id":   "",
+							"text": "",
+							"meta": "",
+						}
+						err := cli.updateTextCommand(params)
+						if err != nil {
+							return err
+						}
+						return nil
+					},
+				},
+				"BINARY": {
+					desc: "Updating binary data",
+					execute: func() error {
+						params := commandParams{
+							"id":       "",
+							"filepath": "",
+							"meta":     "",
+						}
+						err := cli.updateBinaryCommand(params)
+						if err != nil {
+							return err
+						}
+						return nil
+					},
+				},
+				"CARD": {
+					desc: "Updating card data",
+					execute: func() error {
+						params := commandParams{
+							"id":          "",
+							"card number": "",
+							"card cvv":    "",
+							"card owner":  "",
+							"card exp":    "",
+							"meta":        "",
+						}
+						err := cli.updateCardCommand(params)
+						if err != nil {
+							return err
+						}
+						return nil
+					},
+				},
+			},
+		},
+		"DELETE": {
+			desc: "Deleting a record in the system",
+			subcommands: commandThree{
+				"PAIR": {
+					desc: "Create a key value pair",
+					execute: func() error {
+						params := commandParams{
+							"id": "",
+						}
+						err := cli.deletePairCommand(params)
+						if err != nil {
+							return err
+						}
+						return nil
+					},
+				},
+				"TEXT": {
+					desc: "Creating text data",
+					execute: func() error {
+						params := commandParams{
+							"id": "",
+						}
+						err := cli.deleteTextCommand(params)
+						if err != nil {
+							return err
+						}
+						return nil
+					},
+				},
+				"BINARY": {
+					desc: "Creating binary data",
+					execute: func() error {
+						params := commandParams{
+							"id": "",
+						}
+						err := cli.deleteBinaryCommand(params)
+						if err != nil {
+							return err
+						}
+						return nil
+					},
+				},
+				"CARD": {
+					desc: "Creating card data",
+					execute: func() error {
+						params := commandParams{
+							"id": "",
+						}
+						err := cli.deleteCardCommand(params)
+						if err != nil {
+							return err
+						}
 						return nil
 					},
 				},
@@ -148,13 +298,6 @@ func (cli *ClientCLI) InitCommandsThree() {
 			desc: "Show information for help",
 			execute: func() error {
 				log.Print("exec help")
-				return nil
-			},
-		},
-		"EXIT": {
-			desc: "Exiting the program",
-			execute: func() error {
-				os.Exit(1)
 				return nil
 			},
 		},
