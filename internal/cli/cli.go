@@ -1,30 +1,50 @@
 package cli
 
 import (
+	"bufio"
+	"errors"
 	"fmt"
-	"log"
-	"os"
-	"strings"
-
 	"github.com/bbquite/go-pass-keeper/internal/app/client"
-	"github.com/bbquite/go-pass-keeper/internal/app/client/command"
 	clientService "github.com/bbquite/go-pass-keeper/internal/service/client"
 	"github.com/bbquite/go-pass-keeper/internal/storage/local"
 	"go.uber.org/zap"
+	"log"
+	"os"
+	"strings"
 )
 
-type commandsNames []string
-type commandsMap map[string]command.ClientCommand
-type commandUsage string
+var (
+	ErrorNoExecution    = errors.New("no command execution found")
+	ErrorUnknownCommand = errors.New("unknown command")
+)
+
+type commandExecute func() error
+type commandThree map[string]command
+type commandParams map[string]string
+
+type command struct {
+	desc        string
+	usage       string
+	execute     commandExecute
+	subcommands commandThree
+}
+
+func (c *command) getSubCommandsNames() string {
+	if c.subcommands != nil {
+		cNames := ""
+		for name, _ := range c.subcommands {
+			cNames += fmt.Sprintf("%s ", name)
+		}
+		return cNames
+	}
+	return ""
+}
 
 type ClientCLI struct {
 	localStorage *local.ClientStorage
 	authService  *clientService.ClientAuthService
 	dataService  *clientService.ClientDataService
-	commandsRoot []command.ClientCommand
-	cNames       commandsNames
-	cMap         commandsMap
-	cUsage       commandUsage
+	commandsRoot commandThree
 	logger       *zap.SugaredLogger
 }
 
@@ -34,62 +54,184 @@ func NewClientCLI(grpcClient *client.GRPCClient, logger *zap.SugaredLogger) *Cli
 	authService := clientService.NewClientAuthService(grpcClient, localStorage, logger)
 	dataService := clientService.NewClientDataService(grpcClient, localStorage, logger)
 
-	commandsRoot := []command.ClientCommand{
-		command.NewRegisterCommand(authService, os.Stdin, os.Stdout),
-		command.NewAuthCommand(authService, os.Stdin, os.Stdout),
-		command.NewDebugCommand(dataService),
-	}
-
-	cNames, cMap, cUsage := buildCommandsInfo(commandsRoot)
-
 	return &ClientCLI{
 		localStorage: localStorage,
 		authService:  authService,
 		dataService:  dataService,
-		commandsRoot: commandsRoot,
-		cNames:       cNames,
-		cMap:         cMap,
-		cUsage:       cUsage,
 		logger:       logger.Named("CLI"),
 	}
 }
 
-func buildCommandsInfo(commandsRoot []command.ClientCommand) (commandsNames, commandsMap, commandUsage) {
-
-	var cNames commandsNames
-	cUsage := "\n\nHELP INFO: \n"
-	cMap := make(map[string]command.ClientCommand)
-
-	for _, cmd := range commandsRoot {
-		cMap[cmd.Name()] = cmd
-		cNames = append(cNames, cmd.Name())
-
-		cUsage += fmt.Sprintf("\t%s - %s\n%s", cmd.Name(), cmd.Desc(), cmd.Usage())
+func (cli *ClientCLI) InitCommandsThree() {
+	commandsRoot := commandThree{
+		"AUTH": {
+			desc: "Authorization in the system by login and password",
+			execute: func() error {
+				params := commandParams{
+					"username": "",
+					"password": "",
+				}
+				err := cli.authCommand(params)
+				if err != nil {
+					return err
+				}
+				return nil
+			},
+		},
+		"REGISTER": {
+			desc: "Registration in the system",
+			execute: func() error {
+				params := commandParams{
+					"username": "",
+					"password": "",
+					"email":    "",
+				}
+				err := cli.registerCommand(params)
+				if err != nil {
+					return err
+				}
+				return nil
+			},
+		},
+		"CREATE": {
+			desc: "Creating a record in the system",
+			subcommands: commandThree{
+				"PAIR": {
+					desc: "Create a key value pair",
+					execute: func() error {
+						params := commandParams{
+							"key":  "",
+							"pwd":  "",
+							"meta": "",
+						}
+						err := cli.createPairCommand(params)
+						if err != nil {
+							return err
+						}
+						return nil
+					},
+				},
+				"TEXT": {
+					desc: "Creating text data",
+					execute: func() error {
+						log.Print("exec text")
+						return nil
+					},
+				},
+				"BINARY": {
+					desc: "Creating binary data",
+					execute: func() error {
+						log.Print("exec binary")
+						return nil
+					},
+				},
+				"CARD": {
+					desc: "Creating card data",
+					execute: func() error {
+						log.Print("exec binary")
+						return nil
+					},
+				},
+			},
+		},
+		"DEBUG": {
+			desc: "Data output for the developer",
+			execute: func() error {
+				err := cli.dataService.Debug()
+				if err != nil {
+					return err
+				}
+				return nil
+			},
+		},
+		"HELP": {
+			desc: "Show information for help",
+			execute: func() error {
+				log.Print("exec help")
+				return nil
+			},
+		},
+		"EXIT": {
+			desc: "Exiting the program",
+			execute: func() error {
+				os.Exit(1)
+				return nil
+			},
+		},
 	}
-
-	log.Print(cUsage)
-
-	return cNames, cMap, commandUsage(cUsage)
+	cli.commandsRoot = commandsRoot
 }
 
-func (cli *ClientCLI) Run() error {
+func (cli *ClientCLI) Run() {
+	var input string
+	scanner := bufio.NewScanner(os.Stdin)
+
 	for {
-		fmt.Print("Enter the command: ")
-		var input string
-		_, err := fmt.Scanln(&input)
-		if err != nil {
-			cli.logger.Infof("Command input error: %v", err)
-			continue
-		}
-		cmd, exists := cli.cMap[strings.ToUpper(input)]
+		fmt.Println("Enter root command")
+
+		scanner.Scan()
+		input = strings.ToUpper(scanner.Text())
+
+		cmd, exists := cli.commandsRoot[input]
 		if !exists {
-			cli.logger.Infof("Unknown command. Run \"HELP\" command %s", input)
+			fmt.Printf("Unknown command. Run \"HELP\"\n")
 			continue
 		}
 
-		err = cmd.Execute()
+		err := cli.exec(cmd, scanner)
 		if err != nil {
-			cli.logger.Infof("error while executing command: %v", err)
+			fmt.Printf("Error while executing command: %v\n", err)
 		}
 	}
+}
+
+func (cli *ClientCLI) exec(cmd command, scanner *bufio.Scanner) error {
+	if cmd.subcommands == nil {
+		if cmd.execute != nil {
+			err := cmd.execute()
+			if err != nil {
+				return err
+			}
+			return nil
+		}
+		return ErrorNoExecution
+	}
+
+	fmt.Printf("Enter one of: %s\n", cmd.getSubCommandsNames())
+
+	scanner.Scan()
+	input := strings.ToUpper(scanner.Text())
+
+	cmd, exists := cmd.subcommands[input]
+	if !exists {
+		return ErrorUnknownCommand
+	}
+
+	err := cli.exec(cmd, scanner)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (cli *ClientCLI) validateParams(params commandParams) commandParams {
+	scanner := bufio.NewScanner(os.Stdin)
+
+	for i, _ := range params {
+		var input string
+
+		for valid := false; !valid; {
+			fmt.Printf("Enter %s: ", i)
+			scanner.Scan()
+			input = scanner.Text()
+			if input != "" {
+				valid = true
+			}
+		}
+
+		params[i] = input
+	}
+
+	return params
 }

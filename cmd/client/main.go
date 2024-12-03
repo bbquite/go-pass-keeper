@@ -61,10 +61,8 @@ func main() {
 	}
 
 	cliClient := cli.NewClientCLI(grpcClient, logger)
-	err = cliClient.Run()
-	if err != nil {
-		logger.Fatal(err)
-	}
+	cliClient.InitCommandsThree()
+	cliClient.Run()
 
 	defer func() {
 		err := grpcClient.Close()

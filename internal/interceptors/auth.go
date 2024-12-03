@@ -17,11 +17,11 @@ import (
 )
 
 type AuthInterceptor struct {
-	jwtManager    *jwttoken.JWTTokenManager
+	jwtManager    *jwttoken.JWTManager
 	noAuthMethods []string
 }
 
-func NewAuthInterceptor(jwtManager *jwttoken.JWTTokenManager, noAuthMethods []string) *AuthInterceptor {
+func NewAuthInterceptor(jwtManager *jwttoken.JWTManager, noAuthMethods []string) *AuthInterceptor {
 	return &AuthInterceptor{
 		jwtManager:    jwtManager,
 		noAuthMethods: noAuthMethods,

@@ -16,7 +16,7 @@ type GRPCHandler struct {
 	logger      *zap.SugaredLogger
 }
 
-func NewGRPCHandler(jwtManager *jwttoken.JWTTokenManager, dbStorage *postgres.DBStorage, logger *zap.SugaredLogger) *GRPCHandler {
+func NewGRPCHandler(jwtManager *jwttoken.JWTManager, dbStorage *postgres.DBStorage, logger *zap.SugaredLogger) *GRPCHandler {
 
 	dataService := serverServices.NewDataService(dbStorage, logger)
 	authService := serverServices.NewAuthService(dbStorage, jwtManager, logger)

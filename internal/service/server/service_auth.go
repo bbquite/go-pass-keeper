@@ -24,10 +24,10 @@ type authStorageRepo interface {
 type AuthService struct {
 	store      authStorageRepo
 	logger     *zap.SugaredLogger
-	jwtManager *jwttoken.JWTTokenManager
+	jwtManager *jwttoken.JWTManager
 }
 
-func NewAuthService(store authStorageRepo, jwtManager *jwttoken.JWTTokenManager, logger *zap.SugaredLogger) *AuthService {
+func NewAuthService(store authStorageRepo, jwtManager *jwttoken.JWTManager, logger *zap.SugaredLogger) *AuthService {
 	return &AuthService{
 		store:      store,
 		logger:     logger.Named("AUTH"),

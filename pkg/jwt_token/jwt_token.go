@@ -7,13 +7,13 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
-type JWTTokenManager struct {
+type JWTManager struct {
 	ExpiryHour time.Duration
 	Secret     string
 }
 
-func NewJWTTokenManager(exp time.Duration, secret string) *JWTTokenManager {
-	return &JWTTokenManager{
+func NewJWTTokenManager(exp time.Duration, secret string) *JWTManager {
+	return &JWTManager{
 		ExpiryHour: exp,
 		Secret:     secret,
 	}
@@ -28,7 +28,7 @@ type Claims struct {
 	UserID uint32
 }
 
-func (tm *JWTTokenManager) CreateAccessToken(userid uint32) (accessToken string, err error) {
+func (tm *JWTManager) CreateAccessToken(userid uint32) (accessToken string, err error) {
 	claims := &Claims{
 		UserID: userid,
 		RegisteredClaims: jwt.RegisteredClaims{
@@ -43,7 +43,7 @@ func (tm *JWTTokenManager) CreateAccessToken(userid uint32) (accessToken string,
 	return t, err
 }
 
-func (tm *JWTTokenManager) IsAuthorized(requestToken string) (bool, error) {
+func (tm *JWTManager) IsAuthorized(requestToken string) (bool, error) {
 	_, err := jwt.Parse(requestToken, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
@@ -56,7 +56,7 @@ func (tm *JWTTokenManager) IsAuthorized(requestToken string) (bool, error) {
 	return true, nil
 }
 
-func (tm *JWTTokenManager) ExtractIDFromToken(requestToken string) (uint32, error) {
+func (tm *JWTManager) ExtractIDFromToken(requestToken string) (uint32, error) {
 	token, err := jwt.ParseWithClaims(requestToken, &Claims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])

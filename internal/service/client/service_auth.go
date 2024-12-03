@@ -3,6 +3,7 @@ package client
 import (
 	"context"
 	"errors"
+	"log"
 
 	"github.com/bbquite/go-pass-keeper/internal/app/client"
 	"github.com/bbquite/go-pass-keeper/internal/models"
@@ -41,6 +42,8 @@ func NewClientAuthService(grpcClient *client.GRPCClient, store clientAuthStorage
 
 func (service *ClientAuthService) RegisterUser(ctx context.Context, userData *models.UserRegisterData) error {
 	var token jwttoken.JWT
+
+	log.Print(userData)
 
 	resp, err := service.grpcClient.PBService.RegisterUser(ctx, &pb.RegisterUserRequest{
 		Username: userData.Username,

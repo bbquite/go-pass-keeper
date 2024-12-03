@@ -26,7 +26,7 @@ type gRPCServer struct {
 	dbStorage     *postgres.DBStorage
 	handler       *handlers.GRPCHandler
 	interceptors  []grpc.UnaryServerInterceptor
-	jwtManager    *jwttoken.JWTTokenManager
+	jwtManager    *jwttoken.JWTManager
 	noAuthMethods []string
 	logger        *zap.SugaredLogger
 }
