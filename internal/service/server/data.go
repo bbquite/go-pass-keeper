@@ -13,10 +13,10 @@ var (
 )
 
 type dataStorageRepo interface {
-	CreatePairData(ctx context.Context, data *models.PairData) (models.PairData, error)
-	GetPairsDataList(ctx context.Context) ([]models.PairData, error)
-	UpdatePairData(ctx context.Context, data *models.PairData) error
-	DeletePairData(ctx context.Context, pairID uint32) error
+	CreateData(ctx context.Context, data *models.DataStoreFormat) (models.DataStoreFormat, error)
+	GetDataList(ctx context.Context) ([]models.DataStoreFormat, error)
+	UpdateData(ctx context.Context, data *models.DataStoreFormat) error
+	DeleteData(ctx context.Context, pairID uint32) error
 }
 
 type DataService struct {
@@ -68,41 +68,5 @@ func (service *DataService) DeletePairData(ctx context.Context, pairID uint32) e
 		return err
 	}
 
-	return nil
-}
-
-func (service *DataService) CreateTextData(ctx context.Context, data *models.TextData) error {
-	return nil
-}
-
-func (service *DataService) UpdateTextData(ctx context.Context, data *models.TextData) error {
-	return nil
-}
-
-func (service *DataService) DeleteTextData(ctx context.Context, data *models.TextData) error {
-	return nil
-}
-
-func (service *DataService) CreateBinaryData(ctx context.Context, data *models.BinaryData) error {
-	return nil
-}
-
-func (service *DataService) UpdateBinaryData(ctx context.Context, data *models.BinaryData) error {
-	return nil
-}
-
-func (service *DataService) DeleteBinaryData(ctx context.Context, data *models.BinaryData) error {
-	return nil
-}
-
-func (service *DataService) CreateCardData(ctx context.Context, data *models.CardData) error {
-	return nil
-}
-
-func (service *DataService) UpdateCardData(ctx context.Context, data *models.CardData) error {
-	return nil
-}
-
-func (service *DataService) DeleteCardData(ctx context.Context, data *models.CardData) error {
 	return nil
 }

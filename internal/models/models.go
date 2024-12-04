@@ -2,6 +2,23 @@ package models
 
 import "time"
 
+type dataTypeEnum string
+
+const (
+	DataTypePAIR   dataTypeEnum = "PAIR"
+	DataTypeTEXT   dataTypeEnum = "TEXT"
+	DataTypeBINARY dataTypeEnum = "BINARY"
+	DataTypeCARD   dataTypeEnum = "CARD"
+)
+
+type DataStoreFormat struct {
+	ID         uint32       `json:"id"`
+	DataType   dataTypeEnum `json:"data_type"`
+	DataInfo   string       `json:"data_info"`
+	Meta       string       `json:"meta"`
+	UploadedAt time.Time    `json:"uploaded_at"`
+}
+
 type UserLoginData struct {
 	Username string `json:"login"`
 	Password string `json:"password"`
@@ -21,33 +38,26 @@ type Account struct {
 }
 
 type PairData struct {
-	ID         uint32    `json:"id"`
-	Key        string    `json:"key"`
-	Pwd        string    `json:"pwd"`
-	Meta       string    `json:"meta"`
-	UploadedAt time.Time `json:"uploaded_at"`
+	Key  string `json:"key"`
+	Pwd  string `json:"pwd"`
+	Meta string `json:"meta"`
 }
 
 type TextData struct {
-	ID         uint32    `json:"id"`
-	Text       string    `json:"text"`
-	Meta       string    `json:"meta"`
-	UploadedAt time.Time `json:"uploaded_at"`
+	Text string `json:"text"`
+	Meta string `json:"meta"`
 }
 
 type BinaryData struct {
-	ID         uint32    `json:"id"`
-	Binary     []byte    `json:"binary"`
-	Meta       string    `json:"meta"`
-	UploadedAt time.Time `json:"uploaded_at"`
+	FileName string `json:"file_name"`
+	Binary   []byte `json:"binary"`
+	Meta     string `json:"meta"`
 }
 
 type CardData struct {
-	ID         uint32    `json:"id"`
-	CardNum    string    `json:"card_num"`
-	CardCvv    string    `json:"card_cvv"`
-	CardOwner  string    `json:"card_owner"`
-	CardExp    string    `json:"card_exp"`
-	Meta       string    `json:"meta"`
-	UploadedAt time.Time `json:"uploaded_at"`
+	CardNum   string `json:"card_num"`
+	CardCvv   string `json:"card_cvv"`
+	CardOwner string `json:"card_owner"`
+	CardExp   string `json:"card_exp"`
+	Meta      string `json:"meta"`
 }

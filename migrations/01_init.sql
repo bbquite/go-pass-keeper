@@ -12,7 +12,7 @@ DO $$
             CREATE TYPE datatype AS ENUM('PAIR','TEXT', 'BINARY', 'CARD');
         END IF;
 
-        CREATE TABLE IF NOT EXISTS public.data(
+        CREATE TABLE IF NOT EXISTS public.pass_keeper_data(
             id serial PRIMARY KEY,
             account_id integer not null,
             data_type datatype not null,
