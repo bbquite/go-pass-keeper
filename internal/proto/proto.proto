@@ -32,123 +32,41 @@ message RegisterUserResponse {
   ErrorResponse error = 2;
 }
 
-message PairData {
+enum DataTypeEnum {
+  UNKNOWN = 0;
+  PAIR = 1;
+  TEXT = 2;
+  BINARY = 3;
+  CARD = 4;
+}
+
+message DataItem {
   uint32 id = 1;
-  string key = 2;
-  string pwd = 3;
+  DataTypeEnum dataType = 2;
+  string dataInfo = 3;
   string meta = 4;
   string UploadedAt = 5;
 }
 
-message CreatePairDataRequest{
-  PairData pair = 1;
+message CreateDataRequest{
+  DataItem data = 1;
 }
 
-message CreatePairDataResponse{
-  PairData pair = 1;
+message CreateDataResponse{
+  DataItem data = 1;
   ErrorResponse error = 2;
 }
 
-message GetPairsDataResponse{
-  repeated PairData pairs = 1;
+message GetDataResponse{
+  repeated DataItem dataList = 1;
   ErrorResponse error = 2;
 }
 
-message UpdatePairDataRequest{
-  PairData pair = 1;
+message UpdateDataRequest{
+  DataItem data = 1;
 }
 
-message DeletePairDataRequest{
-  uint32 id = 1;
-}
-
-message TextData {
-  uint32 id = 1;
-  string text = 2;
-  string meta = 3;
-  string UploadedAt = 4;
-}
-
-message CreateTextDataRequest{
-  TextData textData = 1;
-}
-
-message CreateTextDataResponse{
-  TextData textData = 1;
-  ErrorResponse error = 2;
-}
-
-message GetTextDataResponse{
-  repeated TextData textData = 1;
-  ErrorResponse error = 2;
-}
-
-message UpdateTextDataRequest{
-  TextData textData = 1;
-}
-
-message DeleteTextDataRequest{
-  uint32 id = 1;
-}
-
-message BinaryData {
-  uint32 id = 1;
-  bytes binaryData = 2;
-  string meta = 3;
-  string UploadedAt = 4;
-}
-
-message CreateBinaryDataRequest{
-  BinaryData binaryData = 1;
-}
-
-message CreateBinaryDataResponse{
-  BinaryData binaryData = 1;
-  ErrorResponse error = 2;
-}
-
-message GetBinaryDataResponse{
-  repeated BinaryData binaryData = 1;
-  ErrorResponse error = 2;
-}
-
-message UpdateBinaryDataRequest{
-  BinaryData binaryData = 1;
-}
-
-message DeleteBinaryDataRequest{
-  uint32 id = 1;
-}
-
-message CardData {
-  uint32 id = 1;
-  string cardNum = 2;
-  string cardOwner = 3;
-  string cardExp = 4;
-  string cardCvv = 5;
-  string meta = 6;
-  string UploadedAt = 7;
-}
-
-message CreateCardDataRequest{
-  CardData cardData = 1;
-}
-
-message CreateCardDataResponse{
-  CardData cardData = 1;
-  ErrorResponse error = 2;
-}
-
-message GetCardDataResponse{
-  repeated CardData cardData = 1;
-  ErrorResponse error = 2;
-}
-
-message UpdateCardDataRequest{
-  CardData cardData = 1;
-}
-
-message DeleteCardDataRequest{
+message DeleteDataRequest{
   uint32 id = 1;
 }
 
@@ -156,24 +74,8 @@ service PassKeeperService {
   rpc AuthUser(AuthUserRequest) returns (AuthUserResponse);
   rpc RegisterUser(RegisterUserRequest) returns (RegisterUserResponse);
 
-  rpc CreatePairData(CreatePairDataRequest) returns (CreatePairDataResponse);
-  rpc GetPairsDataList(Empty) returns (GetPairsDataResponse);
-  rpc UpdatePairData(UpdatePairDataRequest) returns (Empty);
-  rpc DeletePairData(DeletePairDataRequest) returns (Empty);
-
-  rpc CreateTextData(CreateTextDataRequest) returns (CreateTextDataResponse);
-  rpc GetTextDataList(Empty) returns (GetTextDataResponse);
-  rpc UpdateTextData(UpdateTextDataRequest) returns (Empty);
-  rpc DeleteTextData(DeleteTextDataRequest) returns (Empty);
-
-  rpc CreateBinaryData(CreateBinaryDataRequest) returns (CreateBinaryDataResponse);
-  rpc GetBinaryDataList(Empty) returns (GetBinaryDataResponse);
-  rpc UpdateBinaryData(UpdateBinaryDataRequest) returns (Empty);
-  rpc DeleteBinaryData(DeleteBinaryDataRequest) returns (Empty);
-
-  rpc CreateCardData(CreateCardDataRequest) returns (CreateCardDataResponse);
-  rpc GetCardDataList(Empty) returns (GetCardDataResponse);
-  rpc UpdateCardData(UpdateCardDataRequest) returns (Empty);
-  rpc DeleteCardData(DeleteCardDataRequest) returns (Empty);
-
+  rpc CreatePairData(CreateDataRequest) returns (CreateDataResponse);
+  rpc GetPairsDataList(Empty) returns (GetDataResponse);
+  rpc UpdatePairData(UpdateDataRequest) returns (Empty);
+  rpc DeletePairData(DeleteDataRequest) returns (Empty);
 }
