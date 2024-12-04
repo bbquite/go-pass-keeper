@@ -36,11 +36,6 @@ func (service *DataService) CreatePairData(ctx context.Context, pairData *models
 
 	resultPairData, err := service.store.CreatePairData(ctx, pairData)
 	if err != nil {
-		//pgErr := err.(*pgconn.PgError)
-		//if pgErr.Code == pgerrcode.UniqueViolation {
-		//	return resultPairData, ErrUniqueViolation
-		//}
-
 		return resultPairData, err
 	}
 
@@ -73,5 +68,41 @@ func (service *DataService) DeletePairData(ctx context.Context, pairID uint32) e
 		return err
 	}
 
+	return nil
+}
+
+func (service *DataService) CreateTextData(ctx context.Context, data *models.TextData) error {
+	return nil
+}
+
+func (service *DataService) UpdateTextData(ctx context.Context, data *models.TextData) error {
+	return nil
+}
+
+func (service *DataService) DeleteTextData(ctx context.Context, data *models.TextData) error {
+	return nil
+}
+
+func (service *DataService) CreateBinaryData(ctx context.Context, data *models.BinaryData) error {
+	return nil
+}
+
+func (service *DataService) UpdateBinaryData(ctx context.Context, data *models.BinaryData) error {
+	return nil
+}
+
+func (service *DataService) DeleteBinaryData(ctx context.Context, data *models.BinaryData) error {
+	return nil
+}
+
+func (service *DataService) CreateCardData(ctx context.Context, data *models.CardData) error {
+	return nil
+}
+
+func (service *DataService) UpdateCardData(ctx context.Context, data *models.CardData) error {
+	return nil
+}
+
+func (service *DataService) DeleteCardData(ctx context.Context, data *models.CardData) error {
 	return nil
 }
