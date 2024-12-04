@@ -31,9 +31,9 @@ type command struct {
 
 func (c *command) getSubCommandsNames() string {
 	if c.subcommands != nil {
-		cNames := ""
+		cNames := "| "
 		for name, _ := range c.subcommands {
-			cNames += fmt.Sprintf("%s ", name)
+			cNames += fmt.Sprintf("%s | ", name)
 		}
 		return cNames
 	}
