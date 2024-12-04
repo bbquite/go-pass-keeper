@@ -19,12 +19,24 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	PassKeeperService_AuthUser_FullMethodName         = "/internal.proto.PassKeeperService/AuthUser"
-	PassKeeperService_RegisterUser_FullMethodName     = "/internal.proto.PassKeeperService/RegisterUser"
-	PassKeeperService_CreatePairData_FullMethodName   = "/internal.proto.PassKeeperService/CreatePairData"
-	PassKeeperService_GetPairsDataList_FullMethodName = "/internal.proto.PassKeeperService/GetPairsDataList"
-	PassKeeperService_UpdatePairData_FullMethodName   = "/internal.proto.PassKeeperService/UpdatePairData"
-	PassKeeperService_DeletePairData_FullMethodName   = "/internal.proto.PassKeeperService/DeletePairData"
+	PassKeeperService_AuthUser_FullMethodName          = "/internal.proto.PassKeeperService/AuthUser"
+	PassKeeperService_RegisterUser_FullMethodName      = "/internal.proto.PassKeeperService/RegisterUser"
+	PassKeeperService_CreatePairData_FullMethodName    = "/internal.proto.PassKeeperService/CreatePairData"
+	PassKeeperService_GetPairsDataList_FullMethodName  = "/internal.proto.PassKeeperService/GetPairsDataList"
+	PassKeeperService_UpdatePairData_FullMethodName    = "/internal.proto.PassKeeperService/UpdatePairData"
+	PassKeeperService_DeletePairData_FullMethodName    = "/internal.proto.PassKeeperService/DeletePairData"
+	PassKeeperService_CreateTextData_FullMethodName    = "/internal.proto.PassKeeperService/CreateTextData"
+	PassKeeperService_GetTextDataList_FullMethodName   = "/internal.proto.PassKeeperService/GetTextDataList"
+	PassKeeperService_UpdateTextData_FullMethodName    = "/internal.proto.PassKeeperService/UpdateTextData"
+	PassKeeperService_DeleteTextData_FullMethodName    = "/internal.proto.PassKeeperService/DeleteTextData"
+	PassKeeperService_CreateBinaryData_FullMethodName  = "/internal.proto.PassKeeperService/CreateBinaryData"
+	PassKeeperService_GetBinaryDataList_FullMethodName = "/internal.proto.PassKeeperService/GetBinaryDataList"
+	PassKeeperService_UpdateBinaryData_FullMethodName  = "/internal.proto.PassKeeperService/UpdateBinaryData"
+	PassKeeperService_DeleteBinaryData_FullMethodName  = "/internal.proto.PassKeeperService/DeleteBinaryData"
+	PassKeeperService_CreateCardData_FullMethodName    = "/internal.proto.PassKeeperService/CreateCardData"
+	PassKeeperService_GetCardDataList_FullMethodName   = "/internal.proto.PassKeeperService/GetCardDataList"
+	PassKeeperService_UpdateCardData_FullMethodName    = "/internal.proto.PassKeeperService/UpdateCardData"
+	PassKeeperService_DeleteCardData_FullMethodName    = "/internal.proto.PassKeeperService/DeleteCardData"
 )
 
 // PassKeeperServiceClient is the client API for PassKeeperService service.
@@ -37,6 +49,18 @@ type PassKeeperServiceClient interface {
 	GetPairsDataList(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*GetPairsDataResponse, error)
 	UpdatePairData(ctx context.Context, in *UpdatePairDataRequest, opts ...grpc.CallOption) (*Empty, error)
 	DeletePairData(ctx context.Context, in *DeletePairDataRequest, opts ...grpc.CallOption) (*Empty, error)
+	CreateTextData(ctx context.Context, in *CreateTextDataRequest, opts ...grpc.CallOption) (*CreateTextDataResponse, error)
+	GetTextDataList(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*GetTextDataResponse, error)
+	UpdateTextData(ctx context.Context, in *UpdateTextDataRequest, opts ...grpc.CallOption) (*Empty, error)
+	DeleteTextData(ctx context.Context, in *DeleteTextDataRequest, opts ...grpc.CallOption) (*Empty, error)
+	CreateBinaryData(ctx context.Context, in *CreateBinaryDataRequest, opts ...grpc.CallOption) (*CreateBinaryDataResponse, error)
+	GetBinaryDataList(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*GetBinaryDataResponse, error)
+	UpdateBinaryData(ctx context.Context, in *UpdateBinaryDataRequest, opts ...grpc.CallOption) (*Empty, error)
+	DeleteBinaryData(ctx context.Context, in *DeleteBinaryDataRequest, opts ...grpc.CallOption) (*Empty, error)
+	CreateCardData(ctx context.Context, in *CreateCardDataRequest, opts ...grpc.CallOption) (*CreateCardDataResponse, error)
+	GetCardDataList(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*GetCardDataResponse, error)
+	UpdateCardData(ctx context.Context, in *UpdateCardDataRequest, opts ...grpc.CallOption) (*Empty, error)
+	DeleteCardData(ctx context.Context, in *DeleteCardDataRequest, opts ...grpc.CallOption) (*Empty, error)
 }
 
 type passKeeperServiceClient struct {
@@ -107,6 +131,126 @@ func (c *passKeeperServiceClient) DeletePairData(ctx context.Context, in *Delete
 	return out, nil
 }
 
+func (c *passKeeperServiceClient) CreateTextData(ctx context.Context, in *CreateTextDataRequest, opts ...grpc.CallOption) (*CreateTextDataResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateTextDataResponse)
+	err := c.cc.Invoke(ctx, PassKeeperService_CreateTextData_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *passKeeperServiceClient) GetTextDataList(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*GetTextDataResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetTextDataResponse)
+	err := c.cc.Invoke(ctx, PassKeeperService_GetTextDataList_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *passKeeperServiceClient) UpdateTextData(ctx context.Context, in *UpdateTextDataRequest, opts ...grpc.CallOption) (*Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, PassKeeperService_UpdateTextData_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *passKeeperServiceClient) DeleteTextData(ctx context.Context, in *DeleteTextDataRequest, opts ...grpc.CallOption) (*Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, PassKeeperService_DeleteTextData_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *passKeeperServiceClient) CreateBinaryData(ctx context.Context, in *CreateBinaryDataRequest, opts ...grpc.CallOption) (*CreateBinaryDataResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateBinaryDataResponse)
+	err := c.cc.Invoke(ctx, PassKeeperService_CreateBinaryData_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *passKeeperServiceClient) GetBinaryDataList(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*GetBinaryDataResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetBinaryDataResponse)
+	err := c.cc.Invoke(ctx, PassKeeperService_GetBinaryDataList_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *passKeeperServiceClient) UpdateBinaryData(ctx context.Context, in *UpdateBinaryDataRequest, opts ...grpc.CallOption) (*Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, PassKeeperService_UpdateBinaryData_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *passKeeperServiceClient) DeleteBinaryData(ctx context.Context, in *DeleteBinaryDataRequest, opts ...grpc.CallOption) (*Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, PassKeeperService_DeleteBinaryData_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *passKeeperServiceClient) CreateCardData(ctx context.Context, in *CreateCardDataRequest, opts ...grpc.CallOption) (*CreateCardDataResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateCardDataResponse)
+	err := c.cc.Invoke(ctx, PassKeeperService_CreateCardData_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *passKeeperServiceClient) GetCardDataList(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*GetCardDataResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetCardDataResponse)
+	err := c.cc.Invoke(ctx, PassKeeperService_GetCardDataList_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *passKeeperServiceClient) UpdateCardData(ctx context.Context, in *UpdateCardDataRequest, opts ...grpc.CallOption) (*Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, PassKeeperService_UpdateCardData_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *passKeeperServiceClient) DeleteCardData(ctx context.Context, in *DeleteCardDataRequest, opts ...grpc.CallOption) (*Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, PassKeeperService_DeleteCardData_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // PassKeeperServiceServer is the server API for PassKeeperService service.
 // All implementations must embed UnimplementedPassKeeperServiceServer
 // for forward compatibility.
@@ -117,6 +261,18 @@ type PassKeeperServiceServer interface {
 	GetPairsDataList(context.Context, *Empty) (*GetPairsDataResponse, error)
 	UpdatePairData(context.Context, *UpdatePairDataRequest) (*Empty, error)
 	DeletePairData(context.Context, *DeletePairDataRequest) (*Empty, error)
+	CreateTextData(context.Context, *CreateTextDataRequest) (*CreateTextDataResponse, error)
+	GetTextDataList(context.Context, *Empty) (*GetTextDataResponse, error)
+	UpdateTextData(context.Context, *UpdateTextDataRequest) (*Empty, error)
+	DeleteTextData(context.Context, *DeleteTextDataRequest) (*Empty, error)
+	CreateBinaryData(context.Context, *CreateBinaryDataRequest) (*CreateBinaryDataResponse, error)
+	GetBinaryDataList(context.Context, *Empty) (*GetBinaryDataResponse, error)
+	UpdateBinaryData(context.Context, *UpdateBinaryDataRequest) (*Empty, error)
+	DeleteBinaryData(context.Context, *DeleteBinaryDataRequest) (*Empty, error)
+	CreateCardData(context.Context, *CreateCardDataRequest) (*CreateCardDataResponse, error)
+	GetCardDataList(context.Context, *Empty) (*GetCardDataResponse, error)
+	UpdateCardData(context.Context, *UpdateCardDataRequest) (*Empty, error)
+	DeleteCardData(context.Context, *DeleteCardDataRequest) (*Empty, error)
 	mustEmbedUnimplementedPassKeeperServiceServer()
 }
 
@@ -144,6 +300,42 @@ func (UnimplementedPassKeeperServiceServer) UpdatePairData(context.Context, *Upd
 }
 func (UnimplementedPassKeeperServiceServer) DeletePairData(context.Context, *DeletePairDataRequest) (*Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeletePairData not implemented")
+}
+func (UnimplementedPassKeeperServiceServer) CreateTextData(context.Context, *CreateTextDataRequest) (*CreateTextDataResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateTextData not implemented")
+}
+func (UnimplementedPassKeeperServiceServer) GetTextDataList(context.Context, *Empty) (*GetTextDataResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetTextDataList not implemented")
+}
+func (UnimplementedPassKeeperServiceServer) UpdateTextData(context.Context, *UpdateTextDataRequest) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateTextData not implemented")
+}
+func (UnimplementedPassKeeperServiceServer) DeleteTextData(context.Context, *DeleteTextDataRequest) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteTextData not implemented")
+}
+func (UnimplementedPassKeeperServiceServer) CreateBinaryData(context.Context, *CreateBinaryDataRequest) (*CreateBinaryDataResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateBinaryData not implemented")
+}
+func (UnimplementedPassKeeperServiceServer) GetBinaryDataList(context.Context, *Empty) (*GetBinaryDataResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetBinaryDataList not implemented")
+}
+func (UnimplementedPassKeeperServiceServer) UpdateBinaryData(context.Context, *UpdateBinaryDataRequest) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateBinaryData not implemented")
+}
+func (UnimplementedPassKeeperServiceServer) DeleteBinaryData(context.Context, *DeleteBinaryDataRequest) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteBinaryData not implemented")
+}
+func (UnimplementedPassKeeperServiceServer) CreateCardData(context.Context, *CreateCardDataRequest) (*CreateCardDataResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateCardData not implemented")
+}
+func (UnimplementedPassKeeperServiceServer) GetCardDataList(context.Context, *Empty) (*GetCardDataResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCardDataList not implemented")
+}
+func (UnimplementedPassKeeperServiceServer) UpdateCardData(context.Context, *UpdateCardDataRequest) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateCardData not implemented")
+}
+func (UnimplementedPassKeeperServiceServer) DeleteCardData(context.Context, *DeleteCardDataRequest) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteCardData not implemented")
 }
 func (UnimplementedPassKeeperServiceServer) mustEmbedUnimplementedPassKeeperServiceServer() {}
 func (UnimplementedPassKeeperServiceServer) testEmbeddedByValue()                           {}
@@ -274,6 +466,222 @@ func _PassKeeperService_DeletePairData_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _PassKeeperService_CreateTextData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateTextDataRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PassKeeperServiceServer).CreateTextData(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PassKeeperService_CreateTextData_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PassKeeperServiceServer).CreateTextData(ctx, req.(*CreateTextDataRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _PassKeeperService_GetTextDataList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PassKeeperServiceServer).GetTextDataList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PassKeeperService_GetTextDataList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PassKeeperServiceServer).GetTextDataList(ctx, req.(*Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _PassKeeperService_UpdateTextData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateTextDataRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PassKeeperServiceServer).UpdateTextData(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PassKeeperService_UpdateTextData_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PassKeeperServiceServer).UpdateTextData(ctx, req.(*UpdateTextDataRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _PassKeeperService_DeleteTextData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteTextDataRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PassKeeperServiceServer).DeleteTextData(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PassKeeperService_DeleteTextData_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PassKeeperServiceServer).DeleteTextData(ctx, req.(*DeleteTextDataRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _PassKeeperService_CreateBinaryData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateBinaryDataRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PassKeeperServiceServer).CreateBinaryData(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PassKeeperService_CreateBinaryData_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PassKeeperServiceServer).CreateBinaryData(ctx, req.(*CreateBinaryDataRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _PassKeeperService_GetBinaryDataList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PassKeeperServiceServer).GetBinaryDataList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PassKeeperService_GetBinaryDataList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PassKeeperServiceServer).GetBinaryDataList(ctx, req.(*Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _PassKeeperService_UpdateBinaryData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateBinaryDataRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PassKeeperServiceServer).UpdateBinaryData(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PassKeeperService_UpdateBinaryData_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PassKeeperServiceServer).UpdateBinaryData(ctx, req.(*UpdateBinaryDataRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _PassKeeperService_DeleteBinaryData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteBinaryDataRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PassKeeperServiceServer).DeleteBinaryData(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PassKeeperService_DeleteBinaryData_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PassKeeperServiceServer).DeleteBinaryData(ctx, req.(*DeleteBinaryDataRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _PassKeeperService_CreateCardData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateCardDataRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PassKeeperServiceServer).CreateCardData(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PassKeeperService_CreateCardData_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PassKeeperServiceServer).CreateCardData(ctx, req.(*CreateCardDataRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _PassKeeperService_GetCardDataList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PassKeeperServiceServer).GetCardDataList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PassKeeperService_GetCardDataList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PassKeeperServiceServer).GetCardDataList(ctx, req.(*Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _PassKeeperService_UpdateCardData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateCardDataRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PassKeeperServiceServer).UpdateCardData(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PassKeeperService_UpdateCardData_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PassKeeperServiceServer).UpdateCardData(ctx, req.(*UpdateCardDataRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _PassKeeperService_DeleteCardData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteCardDataRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PassKeeperServiceServer).DeleteCardData(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PassKeeperService_DeleteCardData_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PassKeeperServiceServer).DeleteCardData(ctx, req.(*DeleteCardDataRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // PassKeeperService_ServiceDesc is the grpc.ServiceDesc for PassKeeperService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -304,6 +712,54 @@ var PassKeeperService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeletePairData",
 			Handler:    _PassKeeperService_DeletePairData_Handler,
+		},
+		{
+			MethodName: "CreateTextData",
+			Handler:    _PassKeeperService_CreateTextData_Handler,
+		},
+		{
+			MethodName: "GetTextDataList",
+			Handler:    _PassKeeperService_GetTextDataList_Handler,
+		},
+		{
+			MethodName: "UpdateTextData",
+			Handler:    _PassKeeperService_UpdateTextData_Handler,
+		},
+		{
+			MethodName: "DeleteTextData",
+			Handler:    _PassKeeperService_DeleteTextData_Handler,
+		},
+		{
+			MethodName: "CreateBinaryData",
+			Handler:    _PassKeeperService_CreateBinaryData_Handler,
+		},
+		{
+			MethodName: "GetBinaryDataList",
+			Handler:    _PassKeeperService_GetBinaryDataList_Handler,
+		},
+		{
+			MethodName: "UpdateBinaryData",
+			Handler:    _PassKeeperService_UpdateBinaryData_Handler,
+		},
+		{
+			MethodName: "DeleteBinaryData",
+			Handler:    _PassKeeperService_DeleteBinaryData_Handler,
+		},
+		{
+			MethodName: "CreateCardData",
+			Handler:    _PassKeeperService_CreateCardData_Handler,
+		},
+		{
+			MethodName: "GetCardDataList",
+			Handler:    _PassKeeperService_GetCardDataList_Handler,
+		},
+		{
+			MethodName: "UpdateCardData",
+			Handler:    _PassKeeperService_UpdateCardData_Handler,
+		},
+		{
+			MethodName: "DeleteCardData",
+			Handler:    _PassKeeperService_DeleteCardData_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
