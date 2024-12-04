@@ -74,8 +74,8 @@ service PassKeeperService {
   rpc AuthUser(AuthUserRequest) returns (AuthUserResponse);
   rpc RegisterUser(RegisterUserRequest) returns (RegisterUserResponse);
 
-  rpc CreatePairData(CreateDataRequest) returns (CreateDataResponse);
-  rpc GetPairsDataList(Empty) returns (GetDataResponse);
-  rpc UpdatePairData(UpdateDataRequest) returns (Empty);
-  rpc DeletePairData(DeleteDataRequest) returns (Empty);
+  rpc CreateData(CreateDataRequest) returns (CreateDataResponse);
+  rpc GetDataList(Empty) returns (GetDataResponse);
+  rpc UpdateData(UpdateDataRequest) returns (Empty);
+  rpc DeleteData(DeleteDataRequest) returns (Empty);
 }

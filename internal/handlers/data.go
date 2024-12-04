@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+
 	"github.com/bbquite/go-pass-keeper/internal/models"
 	pb "github.com/bbquite/go-pass-keeper/internal/proto"
 	"google.golang.org/grpc/codes"
@@ -14,9 +15,8 @@ const (
 
 func (h *GRPCHandler) CreateData(ctx context.Context, in *pb.CreateDataRequest) (*pb.CreateDataResponse, error) {
 	response := pb.CreateDataResponse{}
-
 	data := models.DataStoreFormat{
-		DataType: models.DataTypeEnum(in.Data.GetDataType()),
+		DataType: models.DataTypeEnum(in.Data.GetDataType().String()),
 		DataInfo: in.Data.GetDataInfo(),
 		Meta:     in.Data.GetMeta(),
 	}
@@ -60,12 +60,12 @@ func (h *GRPCHandler) GetDataList(ctx context.Context, in *pb.Empty) (*pb.GetDat
 	return &response, nil
 }
 
-func (h *GRPCHandler) UpdatePairData(ctx context.Context, in *pb.UpdateDataRequest) (*pb.Empty, error) {
+func (h *GRPCHandler) UpdateData(ctx context.Context, in *pb.UpdateDataRequest) (*pb.Empty, error) {
 	response := pb.Empty{}
 
 	data := models.DataStoreFormat{
-		ID:       in.Data.Id,
-		DataType: models.DataTypeEnum(in.Data.GetDataType()),
+		ID:       in.Data.GetId(),
+		DataType: models.DataTypeEnum(in.Data.GetDataType().String()),
 		DataInfo: in.Data.GetDataInfo(),
 		Meta:     in.Data.GetMeta(),
 	}
@@ -78,7 +78,7 @@ func (h *GRPCHandler) UpdatePairData(ctx context.Context, in *pb.UpdateDataReque
 	return &response, nil
 }
 
-func (h *GRPCHandler) DeletePairData(ctx context.Context, in *pb.DeleteDataRequest) (*pb.Empty, error) {
+func (h *GRPCHandler) DeleteData(ctx context.Context, in *pb.DeleteDataRequest) (*pb.Empty, error) {
 	response := pb.Empty{}
 	dataID := in.GetId()
 

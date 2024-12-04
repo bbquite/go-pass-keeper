@@ -3,12 +3,12 @@ package interceptors
 import (
 	"context"
 	"errors"
+	"slices"
+	"strings"
+
 	"github.com/bbquite/go-pass-keeper/internal/utils"
 	jwttoken "github.com/bbquite/go-pass-keeper/pkg/jwt_token"
 	"github.com/golang-jwt/jwt/v4"
-	"log"
-	"slices"
-	"strings"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -30,10 +30,7 @@ func NewAuthInterceptor(jwtManager *jwttoken.JWTManager, noAuthMethods []string)
 
 func (ai *AuthInterceptor) Unary() grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-
-		log.Print(info.FullMethod)
-
-		if !slices.Contains(ai.noAuthMethods, info.FullMethod) {
+		if slices.Contains(ai.noAuthMethods, info.FullMethod) {
 			return handler(ctx, req)
 		}
 
@@ -51,7 +48,7 @@ func (ai *AuthInterceptor) Unary() grpc.UnaryServerInterceptor {
 func (ai *AuthInterceptor) authorize(ctx context.Context) (uint32, error) {
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
-		return 0, status.Error(codes.Unauthenticated, "metadata not provided")
+		return 0, status.Error(codes.Unauthenticated, "Metadata not provided")
 	}
 
 	values := md["authorization"]

@@ -2,14 +2,15 @@ package server
 
 import (
 	"fmt"
-	"github.com/bbquite/go-pass-keeper/internal/interceptors"
-	jwttoken "github.com/bbquite/go-pass-keeper/pkg/jwt_token"
 	"log"
 	"net"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/bbquite/go-pass-keeper/internal/interceptors"
+	jwttoken "github.com/bbquite/go-pass-keeper/pkg/jwt_token"
 
 	"github.com/bbquite/go-pass-keeper/internal/config"
 	"github.com/bbquite/go-pass-keeper/internal/handlers"
@@ -41,7 +42,10 @@ func NewGRPCServer(cfg *config.ServerConfig, logger *zap.SugaredLogger) (*gRPCSe
 	jwtManager := jwttoken.NewJWTTokenManager(time.Hour*3, cfg.JWTSecret)
 	handler := handlers.NewGRPCHandler(jwtManager, dbStorage, logger)
 
-	noAuthMethods := []string{""}
+	noAuthMethods := []string{
+		"/internal.proto.PassKeeperService/RegisterUser",
+		"/internal.proto.PassKeeperService/AuthUser",
+	}
 
 	serverInit := &gRPCServer{
 		cfg:           cfg,
