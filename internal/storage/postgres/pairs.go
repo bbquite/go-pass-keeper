@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"github.com/bbquite/go-pass-keeper/internal/utils"
 	"time"
 
 	"github.com/bbquite/go-pass-keeper/internal/models"
@@ -16,7 +17,7 @@ func (storage *DBStorage) CreatePairData(ctx context.Context, data *models.PairD
 	`
 
 	var resultPairData models.PairData
-	accountID := 1
+	accountID := ctx.Value(utils.UserIDKey).(uint32)
 
 	row := storage.DB.QueryRowContext(ctx, sqlString, data.Key, data.Pwd, data.Meta, accountID)
 	err := row.Scan(
@@ -34,15 +35,14 @@ func (storage *DBStorage) CreatePairData(ctx context.Context, data *models.PairD
 }
 
 func (storage *DBStorage) GetPairsDataList(ctx context.Context) ([]models.PairData, error) {
-	var result []models.PairData
-
 	sqlStringSelect := `
 		SELECT id, key, pwd, meta, uploaded_at
 		FROM public.pairs_data
 		WHERE account_id = $1;
 	`
 
-	accountID := 1
+	var result []models.PairData
+	accountID := ctx.Value(utils.UserIDKey).(uint32)
 
 	rows, err := storage.DB.QueryContext(ctx, sqlStringSelect, accountID)
 	if err != nil {
@@ -84,10 +84,12 @@ func (storage *DBStorage) UpdatePairData(ctx context.Context, data *models.PairD
 func (storage *DBStorage) DeletePairData(ctx context.Context, pairID uint32) error {
 	sqlString := `
 		DELETE FROM public.pairs_data
-		WHERE id = $1
+		WHERE id = $1 and account_id = $2
 	`
 
-	_, err := storage.DB.ExecContext(ctx, sqlString, pairID)
+	accountID := ctx.Value(utils.UserIDKey).(uint32)
+
+	_, err := storage.DB.ExecContext(ctx, sqlString, pairID, accountID)
 	if err != nil {
 		return err
 	}
