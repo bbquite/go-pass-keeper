@@ -31,30 +31,30 @@ func NewDataService(store dataStorageRepo, logger *zap.SugaredLogger) *DataServi
 	}
 }
 
-func (service *DataService) CreatePairData(ctx context.Context, pairData *models.PairData) (models.PairData, error) {
-	var resultPairData models.PairData
+func (service *DataService) CreateData(ctx context.Context, data *models.DataStoreFormat) (models.DataStoreFormat, error) {
+	var resultData models.DataStoreFormat
 
-	resultPairData, err := service.store.CreatePairData(ctx, pairData)
+	resultData, err := service.store.CreateData(ctx, data)
 	if err != nil {
-		return resultPairData, err
+		return resultData, err
 	}
 
-	return resultPairData, nil
+	return resultData, nil
 }
 
-func (service *DataService) GetPairsDataList(ctx context.Context) ([]models.PairData, error) {
-	var resultPairsDataList []models.PairData
+func (service *DataService) GetDataList(ctx context.Context) ([]models.DataStoreFormat, error) {
+	var resultDataList []models.DataStoreFormat
 
-	resultPairsDataList, err := service.store.GetPairsDataList(ctx)
+	resultDataList, err := service.store.GetDataList(ctx)
 	if err != nil {
-		return resultPairsDataList, err
+		return resultDataList, err
 	}
 
-	return resultPairsDataList, nil
+	return resultDataList, nil
 }
 
-func (service *DataService) UpdatePairData(ctx context.Context, pairData *models.PairData) error {
-	err := service.store.UpdatePairData(ctx, pairData)
+func (service *DataService) UpdateData(ctx context.Context, pairData *models.DataStoreFormat) error {
+	err := service.store.UpdateData(ctx, pairData)
 	if err != nil {
 		return err
 	}
@@ -62,8 +62,8 @@ func (service *DataService) UpdatePairData(ctx context.Context, pairData *models
 	return nil
 }
 
-func (service *DataService) DeletePairData(ctx context.Context, pairID uint32) error {
-	err := service.store.DeletePairData(ctx, pairID)
+func (service *DataService) DeleteData(ctx context.Context, pairID uint32) error {
+	err := service.store.DeleteData(ctx, pairID)
 	if err != nil {
 		return err
 	}

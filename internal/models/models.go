@@ -2,18 +2,18 @@ package models
 
 import "time"
 
-type dataTypeEnum string
+type DataTypeEnum string
 
 const (
-	DataTypePAIR   dataTypeEnum = "PAIR"
-	DataTypeTEXT   dataTypeEnum = "TEXT"
-	DataTypeBINARY dataTypeEnum = "BINARY"
-	DataTypeCARD   dataTypeEnum = "CARD"
+	DataTypePAIR   DataTypeEnum = "PAIR"
+	DataTypeTEXT   DataTypeEnum = "TEXT"
+	DataTypeBINARY DataTypeEnum = "BINARY"
+	DataTypeCARD   DataTypeEnum = "CARD"
 )
 
 type DataStoreFormat struct {
 	ID         uint32       `json:"id"`
-	DataType   dataTypeEnum `json:"data_type"`
+	DataType   DataTypeEnum `json:"data_type"`
 	DataInfo   string       `json:"data_info"`
 	Meta       string       `json:"meta"`
 	UploadedAt time.Time    `json:"uploaded_at"`

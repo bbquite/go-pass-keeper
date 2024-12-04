@@ -2,93 +2,75 @@ package handlers
 
 import (
 	"context"
-	"errors"
-
 	"github.com/bbquite/go-pass-keeper/internal/models"
 	pb "github.com/bbquite/go-pass-keeper/internal/proto"
-	serverServices "github.com/bbquite/go-pass-keeper/internal/service/server"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
-func (h *GRPCHandler) CreatePairData(ctx context.Context, in *pb.CreatePairDataRequest) (*pb.CreatePairDataResponse, error) {
-	response := pb.CreatePairDataResponse{}
+const (
+	formatTimeLayout = "2006-01-02 15:04:05"
+)
 
-	if in.Pair == nil {
-		return &response, status.Error(codes.InvalidArgument, "")
-	} else {
-		if in.Pair.Key == "" || in.Pair.Pwd == "" {
-			return &response, status.Error(codes.InvalidArgument, "")
-		}
+func (h *GRPCHandler) CreateData(ctx context.Context, in *pb.CreateDataRequest) (*pb.CreateDataResponse, error) {
+	response := pb.CreateDataResponse{}
+
+	data := models.DataStoreFormat{
+		DataType: models.DataTypeEnum(in.Data.GetDataType()),
+		DataInfo: in.Data.GetDataInfo(),
+		Meta:     in.Data.GetMeta(),
 	}
 
-	pairData := models.PairData{
-		Key:  in.Pair.Key,
-		Pwd:  in.Pair.Pwd,
-		Meta: in.Pair.Meta,
-	}
-
-	resultPairData, err := h.dataService.CreatePairData(ctx, &pairData)
+	resultData, err := h.dataService.CreateData(ctx, &data)
 	if err != nil {
-		if errors.Is(err, serverServices.ErrUniqueViolation) {
-			return &response, status.Error(codes.InvalidArgument, err.Error())
-		}
 		h.logger.Error(err)
 		return &response, status.Error(codes.Internal, err.Error())
 	}
 
-	return &pb.CreatePairDataResponse{
-		Pair: &pb.PairData{
-			Id:         resultPairData.ID,
-			Key:        resultPairData.Key,
-			Pwd:        resultPairData.Pwd,
-			Meta:       resultPairData.Meta,
-			UploadedAt: resultPairData.UploadedAt.String(),
+	return &pb.CreateDataResponse{
+		Data: &pb.DataItem{
+			Id:         resultData.ID,
+			DataType:   pb.DataTypeEnum(pb.DataTypeEnum_value[string(resultData.DataType)]),
+			DataInfo:   resultData.DataInfo,
+			Meta:       resultData.Meta,
+			UploadedAt: resultData.UploadedAt.Format(formatTimeLayout),
 		},
 	}, nil
 }
 
-func (h *GRPCHandler) GetPairsDataList(ctx context.Context, in *pb.Empty) (*pb.GetPairsDataResponse, error) {
-	response := pb.GetPairsDataResponse{}
+func (h *GRPCHandler) GetDataList(ctx context.Context, in *pb.Empty) (*pb.GetDataResponse, error) {
+	response := pb.GetDataResponse{}
 
-	resultPairsDataList, err := h.dataService.GetPairsDataList(ctx)
+	resultDataList, err := h.dataService.GetDataList(ctx)
 	if err != nil {
 		h.logger.Error(err)
 		return &response, status.Error(codes.Internal, err.Error())
 	}
 
-	for _, pair := range resultPairsDataList {
-		response.Pairs = append(response.Pairs, &pb.PairData{
-			Id:         pair.ID,
-			Key:        pair.Key,
-			Pwd:        pair.Pwd,
-			Meta:       pair.Meta,
-			UploadedAt: pair.UploadedAt.String(),
+	for _, item := range resultDataList {
+		response.DataList = append(response.DataList, &pb.DataItem{
+			Id:         item.ID,
+			DataType:   pb.DataTypeEnum(pb.DataTypeEnum_value[string(item.DataType)]),
+			DataInfo:   item.DataInfo,
+			Meta:       item.Meta,
+			UploadedAt: item.UploadedAt.Format(formatTimeLayout),
 		})
 	}
 
 	return &response, nil
 }
 
-func (h *GRPCHandler) UpdatePairData(ctx context.Context, in *pb.UpdatePairDataRequest) (*pb.Empty, error) {
+func (h *GRPCHandler) UpdatePairData(ctx context.Context, in *pb.UpdateDataRequest) (*pb.Empty, error) {
 	response := pb.Empty{}
 
-	if in.Pair == nil {
-		return &response, status.Error(codes.InvalidArgument, "")
-	} else {
-		if in.Pair.Id == 0 || in.Pair.Key == "" || in.Pair.Pwd == "" {
-			return &response, status.Error(codes.InvalidArgument, "")
-		}
+	data := models.DataStoreFormat{
+		ID:       in.Data.Id,
+		DataType: models.DataTypeEnum(in.Data.GetDataType()),
+		DataInfo: in.Data.GetDataInfo(),
+		Meta:     in.Data.GetMeta(),
 	}
 
-	pairData := models.PairData{
-		ID:   in.Pair.Id,
-		Key:  in.Pair.Key,
-		Pwd:  in.Pair.Pwd,
-		Meta: in.Pair.Meta,
-	}
-
-	err := h.dataService.UpdatePairData(ctx, &pairData)
+	err := h.dataService.UpdateData(ctx, &data)
 	if err != nil {
 		h.logger.Error(err)
 		return &response, status.Error(codes.Internal, err.Error())
@@ -96,11 +78,11 @@ func (h *GRPCHandler) UpdatePairData(ctx context.Context, in *pb.UpdatePairDataR
 	return &response, nil
 }
 
-func (h *GRPCHandler) DeletePairData(ctx context.Context, in *pb.DeletePairDataRequest) (*pb.Empty, error) {
+func (h *GRPCHandler) DeletePairData(ctx context.Context, in *pb.DeleteDataRequest) (*pb.Empty, error) {
 	response := pb.Empty{}
-	pairID := in.GetId()
+	dataID := in.GetId()
 
-	err := h.dataService.DeletePairData(ctx, pairID)
+	err := h.dataService.DeleteData(ctx, dataID)
 	if err != nil {
 		h.logger.Error(err)
 		return &response, status.Error(codes.Internal, err.Error())
