@@ -3,11 +3,12 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
+
 	clientApp "github.com/bbquite/go-pass-keeper/internal/app/client"
 	"github.com/bbquite/go-pass-keeper/internal/cli"
 	"github.com/bbquite/go-pass-keeper/internal/config"
 	"go.uber.org/zap"
-	"log"
 )
 
 const (
@@ -61,7 +62,6 @@ func main() {
 	}
 
 	cliClient := cli.NewClientCLI(grpcClient, logger)
-	cliClient.InitCommandsThree()
 	cliClient.Run()
 
 	defer func() {
