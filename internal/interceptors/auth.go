@@ -64,7 +64,7 @@ func (ai *AuthInterceptor) authorize(ctx context.Context) (uint32, error) {
 		if errors.Is(err, jwt.ErrTokenExpired) {
 			return 0, status.Error(codes.Unauthenticated, "TokenExpired")
 		}
-		return 0, status.Error(codes.Internal, "unexpected error")
+		return 0, status.Error(codes.Internal, err.Error())
 	}
 
 	if authorized {

@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"log"
 
 	"github.com/bbquite/go-pass-keeper/internal/models"
 	pb "github.com/bbquite/go-pass-keeper/internal/proto"
@@ -81,6 +82,8 @@ func (h *GRPCHandler) UpdateData(ctx context.Context, in *pb.UpdateDataRequest) 
 func (h *GRPCHandler) DeleteData(ctx context.Context, in *pb.DeleteDataRequest) (*pb.Empty, error) {
 	response := pb.Empty{}
 	dataID := in.GetId()
+
+	log.Print(dataID)
 
 	err := h.dataService.DeleteData(ctx, dataID)
 	if err != nil {

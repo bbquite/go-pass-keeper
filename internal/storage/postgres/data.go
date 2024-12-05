@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+
 	"github.com/bbquite/go-pass-keeper/internal/models"
 	"github.com/bbquite/go-pass-keeper/internal/utils"
 	_ "github.com/jackc/pgx/v5/stdlib"
@@ -66,11 +67,11 @@ func (storage *DBStorage) UpdateData(ctx context.Context, data *models.DataStore
 	sqlString := `
 		UPDATE public.pass_keeper_data 
 		SET data_info = $1, meta = $2, uploaded_at = NOW()
-		WHERE id = $3 AND account_id = $4
+		WHERE id = $3 AND account_id = $4 AND data_type = $5
 	`
 
 	accountID := ctx.Value(utils.UserIDKey).(uint32)
-	args := []any{data.DataInfo, data.Meta, data.ID, accountID}
+	args := []any{data.DataInfo, data.Meta, data.ID, accountID, data.DataType}
 
 	_, err := storage.DB.ExecContext(ctx, sqlString, args...)
 	if err != nil {

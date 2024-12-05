@@ -44,6 +44,13 @@ func (storage *ClientStorage) SetToken(token *jwttoken.JWT) error {
 	return nil
 }
 
+func (storage *ClientStorage) GetToken() string {
+	if storage.Token != nil {
+		return storage.Token.Token
+	}
+	return ""
+}
+
 func (storage *ClientStorage) AddPairs(data models.PairData) error {
 	storage.mx.Lock()
 	defer storage.mx.Unlock()

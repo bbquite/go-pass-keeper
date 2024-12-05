@@ -2,15 +2,20 @@ package client
 
 import (
 	"context"
+	"fmt"
+
 	"github.com/bbquite/go-pass-keeper/internal/app/client"
 	"github.com/bbquite/go-pass-keeper/internal/models"
+	pb "github.com/bbquite/go-pass-keeper/internal/proto"
 	jwttoken "github.com/bbquite/go-pass-keeper/pkg/jwt_token"
 	"go.uber.org/zap"
+	"google.golang.org/grpc/metadata"
 )
 
 type clientDataStorageRepo interface {
 	SetUserID(userID *uint32) error
 	SetToken(token *jwttoken.JWT) error
+	GetToken() string
 	Debug() ([]byte, error)
 }
 
@@ -38,50 +43,71 @@ func (service *ClientDataService) Debug() error {
 	return nil
 }
 
-func (service *ClientDataService) CreatePairData(ctx context.Context, data *models.PairData) error {
+func (service *ClientDataService) CreateData(ctx context.Context, data *models.DataStoreFormat) error {
+
+	token := service.store.GetToken()
+	if token == "" {
+		return fmt.Errorf("authorization only")
+	}
+
+	ctx = metadata.AppendToOutgoingContext(ctx, "authorization", "Bearer "+service.store.GetToken())
+
+	_, err := service.grpcClient.PBService.CreateData(ctx, &pb.CreateDataRequest{
+		Data: &pb.DataItem{
+			DataType: pb.DataTypeEnum(pb.DataTypeEnum_value[string(data.DataType)]),
+			DataInfo: data.DataInfo,
+			Meta:     data.Meta,
+		},
+	})
+
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
-func (service *ClientDataService) UpdatePairData(ctx context.Context, data *models.PairData) error {
+func (service *ClientDataService) UpdateData(ctx context.Context, data *models.DataStoreFormat) error {
+
+	token := service.store.GetToken()
+	if token == "" {
+		return fmt.Errorf("authorization only")
+	}
+
+	ctx = metadata.AppendToOutgoingContext(ctx, "authorization", "Bearer "+service.store.GetToken())
+
+	_, err := service.grpcClient.PBService.UpdateData(ctx, &pb.UpdateDataRequest{
+		Data: &pb.DataItem{
+			Id:       data.ID,
+			DataType: pb.DataTypeEnum(pb.DataTypeEnum_value[string(data.DataType)]),
+			DataInfo: data.DataInfo,
+			Meta:     data.Meta,
+		},
+	})
+
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
-func (service *ClientDataService) DeletePairData(ctx context.Context, data *models.PairData) error {
-	return nil
-}
+func (service *ClientDataService) DeleteData(ctx context.Context, dataID uint32) error {
 
-func (service *ClientDataService) CreateTextData(ctx context.Context, data *models.TextData) error {
-	return nil
-}
+	token := service.store.GetToken()
+	if token == "" {
+		return fmt.Errorf("authorization only")
+	}
 
-func (service *ClientDataService) UpdateTextData(ctx context.Context, data *models.TextData) error {
-	return nil
-}
+	ctx = metadata.AppendToOutgoingContext(ctx, "authorization", "Bearer "+service.store.GetToken())
 
-func (service *ClientDataService) DeleteTextData(ctx context.Context, data *models.TextData) error {
-	return nil
-}
+	_, err := service.grpcClient.PBService.DeleteData(ctx, &pb.DeleteDataRequest{
+		Id: dataID,
+	})
 
-func (service *ClientDataService) CreateBinaryData(ctx context.Context, data *models.BinaryData) error {
-	return nil
-}
+	if err != nil {
+		return err
+	}
 
-func (service *ClientDataService) UpdateBinaryData(ctx context.Context, data *models.BinaryData) error {
-	return nil
-}
-
-func (service *ClientDataService) DeleteBinaryData(ctx context.Context, data *models.BinaryData) error {
-	return nil
-}
-
-func (service *ClientDataService) CreateCardData(ctx context.Context, data *models.CardData) error {
-	return nil
-}
-
-func (service *ClientDataService) UpdateCardData(ctx context.Context, data *models.CardData) error {
-	return nil
-}
-
-func (service *ClientDataService) DeleteCardData(ctx context.Context, data *models.CardData) error {
 	return nil
 }

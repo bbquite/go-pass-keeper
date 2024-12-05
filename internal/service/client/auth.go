@@ -60,7 +60,6 @@ func (service *ClientAuthService) RegisterUser(ctx context.Context, userData *mo
 
 	token.Token = resp.GetToken()
 	service.store.SetToken(&token)
-	service.logger.Infof("You have successfully registered")
 
 	return nil
 }

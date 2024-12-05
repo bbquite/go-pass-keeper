@@ -38,20 +38,17 @@ type Account struct {
 }
 
 type PairData struct {
-	Key  string `json:"key"`
-	Pwd  string `json:"pwd"`
-	Meta string `json:"meta"`
+	Key string `json:"key"`
+	Pwd string `json:"pwd"`
 }
 
 type TextData struct {
 	Text string `json:"text"`
-	Meta string `json:"meta"`
 }
 
 type BinaryData struct {
 	FileName string `json:"file_name"`
 	Binary   []byte `json:"binary"`
-	Meta     string `json:"meta"`
 }
 
 type CardData struct {
@@ -59,5 +56,4 @@ type CardData struct {
 	CardCvv   string `json:"card_cvv"`
 	CardOwner string `json:"card_owner"`
 	CardExp   string `json:"card_exp"`
-	Meta      string `json:"meta"`
 }
