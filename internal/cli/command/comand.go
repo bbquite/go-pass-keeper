@@ -146,6 +146,16 @@ func (cm *CommandManager) initCommandsThree() {
 				return nil
 			},
 		},
+		"GET": {
+			Desc: "Get records frome remote server",
+			Execute: func() error {
+				err := cm.getCommand()
+				if err != nil {
+					return err
+				}
+				return nil
+			},
+		},
 		"CREATE": {
 			Desc: "Creating a record in the system",
 			Subcommands: CommandThree{

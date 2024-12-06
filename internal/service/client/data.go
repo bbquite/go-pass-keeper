@@ -2,6 +2,7 @@ package client
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 
 	"github.com/bbquite/go-pass-keeper/internal/app/client"
@@ -16,7 +17,21 @@ type clientDataStorageRepo interface {
 	SetUserID(userID *uint32) error
 	SetToken(token *jwttoken.JWT) error
 	GetToken() string
+
+	AddPairs(data models.PairData) error
+	GetPairs() ([]models.PairData, error)
+
+	AddTexts(data models.TextData) error
+	GetTexts() ([]models.TextData, error)
+
+	AddBinaries(data models.BinaryData) error
+	GetBinary() ([]models.BinaryData, error)
+
+	AddCards(data models.CardData) error
+	GetCards() ([]models.CardData, error)
+
 	Debug() ([]byte, error)
+	ClearStorage()
 }
 
 type ClientDataService struct {
@@ -107,6 +122,78 @@ func (service *ClientDataService) DeleteData(ctx context.Context, dataID uint32)
 
 	if err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (service *ClientDataService) GetData(ctx context.Context) error {
+
+	token := service.store.GetToken()
+	if token == "" {
+		return fmt.Errorf("authorization only")
+	}
+
+	ctx = metadata.AppendToOutgoingContext(ctx, "authorization", "Bearer "+service.store.GetToken())
+
+	response, err := service.grpcClient.PBService.GetDataList(ctx, &pb.Empty{})
+	if err != nil {
+		return err
+	}
+
+	service.store.ClearStorage()
+	dataItems := response.GetDataList()
+
+	for _, item := range dataItems {
+		switch item.DataType {
+		case pb.DataTypeEnum(pb.DataTypeEnum_value[string(models.DataTypePAIR)]):
+
+			m := models.PairData{}
+			d := []byte(item.DataInfo)
+			err := json.Unmarshal(d, &m)
+			if err != nil {
+				return err
+			}
+			m.ID = item.Id
+			m.Meta = item.Meta
+			service.store.AddPairs(m)
+
+		case pb.DataTypeEnum(pb.DataTypeEnum_value[string(models.DataTypeTEXT)]):
+
+			m := models.TextData{}
+			d := []byte(item.DataInfo)
+			err := json.Unmarshal(d, &m)
+			if err != nil {
+				return err
+			}
+			m.ID = item.Id
+			m.Meta = item.Meta
+			service.store.AddTexts(m)
+
+		case pb.DataTypeEnum(pb.DataTypeEnum_value[string(models.DataTypeBINARY)]):
+
+			m := models.BinaryData{}
+			d := []byte(item.DataInfo)
+			err := json.Unmarshal(d, &m)
+			if err != nil {
+				return err
+			}
+			m.ID = item.Id
+			m.Meta = item.Meta
+			service.store.AddBinaries(m)
+
+		case pb.DataTypeEnum(pb.DataTypeEnum_value[string(models.DataTypeCARD)]):
+
+			m := models.CardData{}
+			d := []byte(item.DataInfo)
+			err := json.Unmarshal(d, &m)
+			if err != nil {
+				return err
+			}
+			m.ID = item.Id
+			m.Meta = item.Meta
+			service.store.AddCards(m)
+		}
 	}
 
 	return nil

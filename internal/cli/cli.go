@@ -2,6 +2,7 @@ package cli
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -11,6 +12,8 @@ import (
 	"github.com/fatih/color"
 	"go.uber.org/zap"
 )
+
+var ErrorCLIGracefullyStop = errors.New("cli gracefully stop")
 
 type ClientCLI struct {
 	commandManager *command.CommandManager
@@ -31,7 +34,7 @@ func (cli *ClientCLI) Run() {
 	scanner := bufio.NewScanner(os.Stdin)
 
 	for {
-		fmt.Println("Enter root command")
+		fmt.Print("Enter root command: ")
 
 		scanner.Scan()
 		input = strings.ToUpper(scanner.Text())
