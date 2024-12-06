@@ -1,7 +1,7 @@
 package validator
 
 import (
-	"fmt"
+	"os"
 	"regexp"
 
 	validation "github.com/go-ozzo/ozzo-validation"
@@ -49,8 +49,9 @@ func StringValidationUnlimit(param string) error {
 }
 
 func FilePathValidation(param string) error {
-	if param == "" || len(param) > 250 {
-		return fmt.Errorf("invalid string length")
+	_, err := os.ReadFile(param)
+	if err != nil {
+		return err
 	}
 	return nil
 }

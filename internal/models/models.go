@@ -53,6 +53,7 @@ type TextData struct {
 type BinaryData struct {
 	ID       uint32 `json:"id,omitempty"`
 	FileName string `json:"file_name"`
+	FileSize int64  `json:"file_size"`
 	Binary   []byte `json:"binary"`
 	Meta     string `json:"meta,omitempty"`
 }

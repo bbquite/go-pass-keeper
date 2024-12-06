@@ -146,8 +146,8 @@ func (cm *CommandManager) initCommandsThree() {
 				return nil
 			},
 		},
-		"GET": {
-			Desc: "Get records frome remote server",
+		"SHOW": {
+			Desc: "Show records from remote server",
 			Execute: func() error {
 				err := cm.getCommand()
 				if err != nil {

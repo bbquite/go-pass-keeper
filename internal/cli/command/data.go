@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"os"
+	"path/filepath"
 	"strconv"
 
 	"github.com/bbquite/go-pass-keeper/internal/models"
@@ -32,8 +34,16 @@ func (cm *CommandManager) createCommand(dataType models.DataTypeEnum, params Com
 			Text: paramsValidated["text"].value,
 		})
 	case models.DataTypeBINARY:
+		filePath := paramsValidated["filepath"].value
+		fileContent, fileName, fileSize, err := cm.getFileInfo(filePath)
+		if err != nil {
+			return err
+		}
+
 		dataMarshal, err = json.Marshal(&models.BinaryData{
-			FileName: paramsValidated["filename"].value,
+			FileName: fileName,
+			FileSize: fileSize,
+			Binary:   fileContent,
 		})
 	case models.DataTypeCARD:
 		dataMarshal, err = json.Marshal(&models.CardData{
@@ -81,8 +91,16 @@ func (cm *CommandManager) updateCommand(dataType models.DataTypeEnum, params Com
 			Text: paramsValidated["text"].value,
 		})
 	case models.DataTypeBINARY:
+		filePath := paramsValidated["filepath"].value
+		fileContent, fileName, fileSize, err := cm.getFileInfo(filePath)
+		if err != nil {
+			return err
+		}
+
 		dataMarshal, err = json.Marshal(&models.BinaryData{
-			FileName: paramsValidated["filename"].value,
+			FileName: fileName,
+			FileSize: fileSize,
+			Binary:   fileContent,
 		})
 	case models.DataTypeCARD:
 		dataMarshal, err = json.Marshal(&models.CardData{
@@ -144,9 +162,27 @@ func (cm *CommandManager) getCommand() error {
 
 	cm.printPairs()
 	cm.printCards()
+	cm.printBinary()
 	cm.printTexts()
 
 	return nil
+}
+
+func (cm *CommandManager) getFileInfo(filePath string) ([]byte, string, int64, error) {
+	fileContent, err := os.ReadFile(filePath)
+	if err != nil {
+		return nil, "", 0, err
+	}
+	_, fileName := filepath.Split(filePath)
+
+	fi, err := os.Stat(filePath)
+	if err != nil {
+		return nil, "", 0, err
+	}
+	// get the size
+	fileSize := fi.Size()
+
+	return fileContent, fileName, fileSize, nil
 }
 
 func (cm *CommandManager) printPairs() {
@@ -198,4 +234,21 @@ func (cm *CommandManager) printCards() {
 
 	fmt.Printf("\nCARD DATA: \n\n")
 	cardsTable.Print()
+}
+
+func (cm *CommandManager) printBinary() {
+	bin, _ := cm.localStorage.GetBinary()
+	if len(bin) == 0 {
+		return
+	}
+
+	binTable := clitable.New([]string{"ID", "NAME", "SIZE", "META"})
+	binTable.Markdown = true
+
+	for _, item := range bin {
+		binTable.AddRow(map[string]interface{}{"ID": item.ID, "NAME": item.FileName, "SIZE": item.FileSize, "META": item.Meta})
+	}
+
+	fmt.Printf("\nCARD DATA: \n\n")
+	binTable.Print()
 }
