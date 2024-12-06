@@ -2,39 +2,80 @@ package server
 
 import (
 	"context"
-	"errors"
-
+	"fmt"
+	encryptor "github.com/bbquite/go-pass-keeper/internal/encryption"
 	"github.com/bbquite/go-pass-keeper/internal/models"
+	"github.com/bbquite/go-pass-keeper/internal/utils"
 	"go.uber.org/zap"
 )
 
-var (
-	ErrUniqueViolation = errors.New("record already exists")
-)
-
 type dataStorageRepo interface {
-	CreateData(ctx context.Context, data *models.DataStoreFormat) (models.DataStoreFormat, error)
-	GetDataList(ctx context.Context) ([]models.DataStoreFormat, error)
-	UpdateData(ctx context.Context, data *models.DataStoreFormat) error
-	DeleteData(ctx context.Context, pairID uint32) error
+	CreateData(ctx context.Context, accountID uint32, data *models.DataStoreFormat) (models.DataStoreFormat, error)
+	GetDataList(ctx context.Context, accountID uint32) ([]models.DataStoreFormat, error)
+	UpdateData(ctx context.Context, accountID uint32, data *models.DataStoreFormat) error
+	DeleteData(ctx context.Context, accountID uint32, dataID uint32) error
+
+	GetDataByIDForUser(ctx context.Context, accountID uint32, storedDataID uint32) (models.DataStoreFormat, error)
 }
 
 type DataService struct {
-	store  dataStorageRepo
-	logger *zap.SugaredLogger
+	store     dataStorageRepo
+	encryptor *encryptor.Encryptor
+	logger    *zap.SugaredLogger
 }
 
-func NewDataService(store dataStorageRepo, logger *zap.SugaredLogger) *DataService {
+func NewDataService(store dataStorageRepo, encryptorManager *encryptor.Encryptor, logger *zap.SugaredLogger) *DataService {
 	return &DataService{
-		store:  store,
-		logger: logger.Named("DATA"),
+		store:     store,
+		encryptor: encryptorManager,
+		logger:    logger.Named("DATA"),
 	}
 }
 
-func (service *DataService) CreateData(ctx context.Context, data *models.DataStoreFormat) (models.DataStoreFormat, error) {
-	var resultData models.DataStoreFormat
+func (s *DataService) EncryptData(data *models.DataStoreFormat) (*models.DataStoreFormat, error) {
+	encryptedInfo, err := s.encryptor.Encrypt(data.DataInfo)
+	if err != nil {
+		return nil, err
+	}
 
-	resultData, err := service.store.CreateData(ctx, data)
+	encryptedMeta, err := s.encryptor.Encrypt(data.Meta)
+	if err != nil {
+		return nil, err
+	}
+
+	data.DataInfo = encryptedInfo
+	data.Meta = encryptedMeta
+
+	return data, nil
+}
+
+func (s *DataService) DecryptData(data *models.DataStoreFormat) (*models.DataStoreFormat, error) {
+	decryptedInfo, err := s.encryptor.Decrypt(data.DataInfo)
+	if err != nil {
+		return nil, err
+	}
+
+	decryptedMeta, err := s.encryptor.Decrypt(data.Meta)
+	if err != nil {
+		return nil, err
+	}
+
+	data.DataInfo = decryptedInfo
+	data.Meta = decryptedMeta
+
+	return data, nil
+}
+
+func (s *DataService) CreateData(ctx context.Context, data *models.DataStoreFormat) (models.DataStoreFormat, error) {
+	var resultData models.DataStoreFormat
+	accountID := ctx.Value(utils.UserIDKey).(uint32)
+
+	encryptedData, err := s.EncryptData(data)
+	if err != nil {
+		return resultData, fmt.Errorf("encryption error: %v", err)
+	}
+
+	resultData, err = s.store.CreateData(ctx, accountID, encryptedData)
 	if err != nil {
 		return resultData, err
 	}
@@ -42,19 +83,44 @@ func (service *DataService) CreateData(ctx context.Context, data *models.DataSto
 	return resultData, nil
 }
 
-func (service *DataService) GetDataList(ctx context.Context) ([]models.DataStoreFormat, error) {
+func (s *DataService) GetDataList(ctx context.Context) ([]models.DataStoreFormat, error) {
 	var resultDataList []models.DataStoreFormat
+	accountID := ctx.Value(utils.UserIDKey).(uint32)
 
-	resultDataList, err := service.store.GetDataList(ctx)
+	resultDataList, err := s.store.GetDataList(ctx, accountID)
 	if err != nil {
 		return resultDataList, err
 	}
 
-	return resultDataList, nil
+	var decryptedDataList []models.DataStoreFormat
+
+	for _, item := range resultDataList {
+		dd, err := s.DecryptData(&item)
+		if err != nil {
+			return resultDataList, fmt.Errorf("decryption error: %v", err)
+		}
+
+		decryptedDataList = append(decryptedDataList, *dd)
+	}
+
+	return decryptedDataList, nil
 }
 
-func (service *DataService) UpdateData(ctx context.Context, pairData *models.DataStoreFormat) error {
-	err := service.store.UpdateData(ctx, pairData)
+func (s *DataService) UpdateData(ctx context.Context, data *models.DataStoreFormat) error {
+
+	accountID := ctx.Value(utils.UserIDKey).(uint32)
+
+	_, err := s.store.GetDataByIDForUser(ctx, accountID, data.ID)
+	if err != nil {
+		return err
+	}
+
+	encryptedData, err := s.EncryptData(data)
+	if err != nil {
+		return fmt.Errorf("encryption error: %v", err)
+	}
+
+	err = s.store.UpdateData(ctx, accountID, encryptedData)
 	if err != nil {
 		return err
 	}
@@ -62,8 +128,16 @@ func (service *DataService) UpdateData(ctx context.Context, pairData *models.Dat
 	return nil
 }
 
-func (service *DataService) DeleteData(ctx context.Context, pairID uint32) error {
-	err := service.store.DeleteData(ctx, pairID)
+func (s *DataService) DeleteData(ctx context.Context, dataID uint32) error {
+
+	accountID := ctx.Value(utils.UserIDKey).(uint32)
+
+	_, err := s.store.GetDataByIDForUser(ctx, accountID, dataID)
+	if err != nil {
+		return err
+	}
+
+	err = s.store.DeleteData(ctx, accountID, dataID)
 	if err != nil {
 		return err
 	}

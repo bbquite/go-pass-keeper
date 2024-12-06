@@ -2,10 +2,10 @@ package client
 
 import (
 	"fmt"
+	"google.golang.org/grpc/credentials"
 
 	pb "github.com/bbquite/go-pass-keeper/internal/proto"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 )
 
 type GRPCClient struct {
@@ -14,12 +14,12 @@ type GRPCClient struct {
 }
 
 func NewGRPCClient(serverAddress string, rootCertPath string) (*GRPCClient, error) {
-	// TLScreds, err := credentials.NewClientTLSFromFile(rootCertPath, "")
-	// if err != nil {
-	// 	return nil, fmt.Errorf("failed to load CA certificate: %v", err)
-	// }
+	TLScreeds, err := credentials.NewClientTLSFromFile(rootCertPath, "")
+	if err != nil {
+		return nil, fmt.Errorf("failed to load CA certificate: %v", err)
+	}
 
-	conn, err := grpc.NewClient(serverAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.NewClient(serverAddress, grpc.WithTransportCredentials(TLScreeds))
 	if err != nil {
 		return nil, fmt.Errorf("error init gRPC client: %v", err)
 	}

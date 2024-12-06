@@ -1,18 +1,12 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"github.com/bbquite/go-pass-keeper/internal/config"
 	"log"
 
 	"github.com/bbquite/go-pass-keeper/internal/app/server"
 	"go.uber.org/zap"
-)
-
-const (
-	defServerHost  = "localhost:8080"
-	defDatabaseURI = ""
 )
 
 var (
@@ -22,9 +16,7 @@ var (
 )
 
 func showBuildInfo() {
-	fmt.Printf("Build version: %s\n", buildVersion)
-	fmt.Printf("Build date: %s\n", buildDate)
-	fmt.Printf("Build commit: %s\n", buildCommit)
+	fmt.Printf("\nBuild version: %s\nBuild date: %s\nBuild commit: %s\n\n", buildVersion, buildDate, buildCommit)
 }
 
 func initServerLogger() (*zap.SugaredLogger, error) {
@@ -46,14 +38,12 @@ func main() {
 	}
 
 	cfg := new(config.ServerConfig)
-	flag.StringVar(&cfg.Host, "h", defServerHost, "HOST")
-	flag.StringVar(&cfg.DatabaseURI, "d", defDatabaseURI, "DB HOST")
-	flag.Parse()
-
-	err = cfg.GetFromENV()
+	cfg.SetFlags()
+	err = cfg.SetENV()
 	if err != nil {
 		logger.Fatal(err)
 	}
+
 	logger.Infof("Server run with config: %s", cfg.PrintConfig())
 
 	srv, err := server.NewGRPCServer(cfg, logger)

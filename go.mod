@@ -3,13 +3,13 @@ module github.com/bbquite/go-pass-keeper
 go 1.22.7
 
 require (
+	github.com/caarlos0/env/v11 v11.2.2
 	github.com/fatih/color v1.18.0
 	github.com/go-ozzo/ozzo-validation v3.6.0+incompatible
 	github.com/golang-jwt/jwt/v4 v4.5.1
 	github.com/jackc/pgx/v5 v5.7.1
 	github.com/joho/godotenv v1.5.1
 	github.com/mattn/go-runewidth v0.0.16
-	github.com/pkg/errors v0.9.1
 	go.uber.org/zap v1.27.0
 	google.golang.org/grpc v1.68.0
 	google.golang.org/protobuf v1.34.2

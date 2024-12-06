@@ -2,6 +2,8 @@ package server
 
 import (
 	"fmt"
+	encryptor "github.com/bbquite/go-pass-keeper/internal/encryption"
+	"google.golang.org/grpc/credentials"
 	"log"
 	"net"
 	"os"
@@ -40,7 +42,8 @@ func NewGRPCServer(cfg *config.ServerConfig, logger *zap.SugaredLogger) (*gRPCSe
 	}
 
 	jwtManager := jwttoken.NewJWTTokenManager(time.Hour*3, cfg.JWTSecret)
-	handler := handlers.NewGRPCHandler(jwtManager, dbStorage, logger)
+	encryptorManager := encryptor.NewEncryptor([]byte(cfg.CryptoKey))
+	handler := handlers.NewGRPCHandler(jwtManager, encryptorManager, dbStorage, logger)
 
 	noAuthMethods := []string{
 		"/internal.proto.PassKeeperService/RegisterUser",
@@ -48,10 +51,11 @@ func NewGRPCServer(cfg *config.ServerConfig, logger *zap.SugaredLogger) (*gRPCSe
 	}
 
 	serverInit := &gRPCServer{
-		cfg:           cfg,
-		handler:       handler,
-		dbStorage:     dbStorage,
-		jwtManager:    jwtManager,
+		cfg:        cfg,
+		handler:    handler,
+		dbStorage:  dbStorage,
+		jwtManager: jwtManager,
+
 		noAuthMethods: noAuthMethods,
 		logger:        logger.Named("SERVER"),
 	}
@@ -81,7 +85,14 @@ func (s *gRPCServer) RunGRPCServer() {
 		log.Fatalf("error occured while running gRPC server: %v", err)
 	}
 
-	grpcServer := grpc.NewServer(grpc.ChainUnaryInterceptor(s.interceptors...))
+	grpcCredos, err := credentials.NewServerTLSFromFile(s.cfg.GetServerCrtPath(), s.cfg.GetServerKeyPath())
+	if err != nil {
+		log.Fatalf("failed to load TLS certificates: %v", err)
+	}
+
+	grpcServer := grpc.NewServer(
+		grpc.Creds(grpcCredos),
+		grpc.ChainUnaryInterceptor(s.interceptors...))
 	reflection.Register(grpcServer)
 	pb.RegisterPassKeeperServiceServer(grpcServer, s.handler)
 

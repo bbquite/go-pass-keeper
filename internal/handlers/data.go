@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"log"
 
 	"github.com/bbquite/go-pass-keeper/internal/models"
@@ -73,6 +75,9 @@ func (h *GRPCHandler) UpdateData(ctx context.Context, in *pb.UpdateDataRequest) 
 
 	err := h.dataService.UpdateData(ctx, &data)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return &response, status.Error(codes.NotFound, err.Error())
+		}
 		h.logger.Error(err)
 		return &response, status.Error(codes.Internal, err.Error())
 	}
@@ -87,6 +92,9 @@ func (h *GRPCHandler) DeleteData(ctx context.Context, in *pb.DeleteDataRequest) 
 
 	err := h.dataService.DeleteData(ctx, dataID)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return &response, status.Error(codes.NotFound, err.Error())
+		}
 		h.logger.Error(err)
 		return &response, status.Error(codes.Internal, err.Error())
 	}
