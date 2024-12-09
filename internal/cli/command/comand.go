@@ -2,6 +2,7 @@ package command
 
 import (
 	"bufio"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
@@ -12,6 +13,7 @@ import (
 	"github.com/bbquite/go-pass-keeper/internal/models"
 	clientService "github.com/bbquite/go-pass-keeper/internal/service/client"
 	"github.com/bbquite/go-pass-keeper/internal/storage/local"
+	jwttoken "github.com/bbquite/go-pass-keeper/pkg/jwt_token"
 	"github.com/fatih/color"
 	"go.uber.org/zap"
 )
@@ -68,8 +70,30 @@ func NewCommandManager(grpcClient *client.GRPCClient, logger *zap.SugaredLogger)
 	}
 
 	cm.initCommandsThree()
+	err := cm.authFromFile()
+	if err != nil {
+		fmt.Printf("auth file not found: %v\n", err)
+	}
 
 	return cm
+}
+
+func (cm *CommandManager) authFromFile() error {
+	var jwtModel jwttoken.JWT
+
+	data, err := os.ReadFile("./auth.json")
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(data, &jwtModel)
+	if err != nil {
+		return err
+	}
+
+	cm.localStorage.SetToken(&jwtModel)
+
+	return nil
 }
 
 func (cm *CommandManager) validateParams(params CommandParams) CommandParams {
@@ -154,6 +178,57 @@ func (cm *CommandManager) initCommandsThree() {
 					return err
 				}
 				return nil
+			},
+		},
+		"GET": {
+			Desc: "Download data from remote server",
+			Subcommands: CommandThree{
+				"PAIR": {
+					Desc: "Download a key value pair (ALL)",
+					Execute: func() error {
+						err := cm.downloadCommand(models.DataTypePAIR)
+						if err != nil {
+							return err
+						}
+						return nil
+					},
+				},
+				"TEXT": {
+					Desc: "Download text data (ALL)",
+					Execute: func() error {
+						err := cm.downloadCommand(models.DataTypeTEXT)
+						if err != nil {
+							return err
+						}
+						return nil
+					},
+				},
+				"BINARY": {
+					Desc: "Download binary data (by ID)",
+					Execute: func() error {
+						params := CommandParams{
+							"id": {
+								validateFunc: validator.IntValidation,
+								value:        "",
+							},
+						}
+						err := cm.downloadCommand(models.DataTypeBINARY, params)
+						if err != nil {
+							return err
+						}
+						return nil
+					},
+				},
+				"CARD": {
+					Desc: "Creating card data",
+					Execute: func() error {
+						err := cm.downloadCommand(models.DataTypeCARD)
+						if err != nil {
+							return err
+						}
+						return nil
+					},
+				},
 			},
 		},
 		"CREATE": {

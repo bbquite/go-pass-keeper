@@ -29,14 +29,16 @@ func (cm *CommandManager) createCommand(dataType models.DataTypeEnum, params Com
 			Key: paramsValidated["key"].value,
 			Pwd: paramsValidated["pwd"].value,
 		})
+
 	case models.DataTypeTEXT:
 		dataMarshal, err = json.Marshal(&models.TextData{
 			Text: paramsValidated["text"].value,
 		})
+
 	case models.DataTypeBINARY:
 		filePath := paramsValidated["filepath"].value
-		fileContent, fileName, fileSize, err := cm.getFileInfo(filePath)
-		if err != nil {
+		fileContent, fileName, fileSize, ferr := cm.getFileInfo(filePath)
+		if ferr != nil {
 			return err
 		}
 
@@ -45,6 +47,7 @@ func (cm *CommandManager) createCommand(dataType models.DataTypeEnum, params Com
 			FileSize: fileSize,
 			Binary:   fileContent,
 		})
+
 	case models.DataTypeCARD:
 		dataMarshal, err = json.Marshal(&models.CardData{
 			CardNum:   paramsValidated["number"].value,
@@ -86,10 +89,12 @@ func (cm *CommandManager) updateCommand(dataType models.DataTypeEnum, params Com
 			Key: paramsValidated["key"].value,
 			Pwd: paramsValidated["pwd"].value,
 		})
+
 	case models.DataTypeTEXT:
 		dataMarshal, err = json.Marshal(&models.TextData{
 			Text: paramsValidated["text"].value,
 		})
+
 	case models.DataTypeBINARY:
 		filePath := paramsValidated["filepath"].value
 		fileContent, fileName, fileSize, err := cm.getFileInfo(filePath)
@@ -102,6 +107,7 @@ func (cm *CommandManager) updateCommand(dataType models.DataTypeEnum, params Com
 			FileSize: fileSize,
 			Binary:   fileContent,
 		})
+
 	case models.DataTypeCARD:
 		dataMarshal, err = json.Marshal(&models.CardData{
 			CardNum:   paramsValidated["number"].value,
@@ -168,6 +174,91 @@ func (cm *CommandManager) getCommand() error {
 	return nil
 }
 
+func (cm *CommandManager) downloadCommand(dataType models.DataTypeEnum, params ...CommandParams) error {
+
+	err := cm.dataService.GetData(context.Background())
+	if err != nil {
+		return err
+	}
+
+	switch dataType {
+	case models.DataTypePAIR:
+		jsOut, err := json.MarshalIndent(cm.localStorage.PairsList, "", "	")
+		if err != nil {
+			return err
+		}
+		err = cm.saveFile("./pair export.json", jsOut)
+		if err != nil {
+			return err
+		}
+
+	case models.DataTypeTEXT:
+		jsOut, err := json.MarshalIndent(cm.localStorage.TextsList, "", "	")
+		if err != nil {
+			return err
+		}
+		err = cm.saveFile("./text export.json", jsOut)
+		if err != nil {
+			return err
+		}
+
+	case models.DataTypeBINARY:
+		var dataID uint64
+
+		if len(params) > 0 {
+			paramsValidated := cm.validateParams(params[0])
+
+			if _, ok := paramsValidated["id"]; ok {
+				dataID, err = strconv.ParseUint(paramsValidated["id"].value, 10, 32)
+				if err != nil {
+					return err
+				}
+
+				dataItem, err := cm.dataService.GetDataByID(context.Background(), uint32(dataID))
+				if err != nil {
+					return err
+				}
+
+				m := models.BinaryData{}
+				d := []byte(dataItem.DataInfo)
+				err = json.Unmarshal(d, &m)
+				if err != nil {
+					return err
+				}
+
+				err = cm.saveFile("./"+m.FileName, m.Binary)
+				if err != nil {
+					return err
+				}
+
+				return nil
+			}
+		}
+
+		return fmt.Errorf("cant get binary data")
+
+	case models.DataTypeCARD:
+		jsOut, err := json.MarshalIndent(cm.localStorage.CardsList, "", "	")
+		if err != nil {
+			return err
+		}
+		err = cm.saveFile("./card export.json", jsOut)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (cm *CommandManager) saveFile(filePath string, fileData []byte) error {
+	err := os.WriteFile(filePath, fileData, 0666)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (cm *CommandManager) getFileInfo(filePath string) ([]byte, string, int64, error) {
 	fileContent, err := os.ReadFile(filePath)
 	if err != nil {
@@ -179,7 +270,7 @@ func (cm *CommandManager) getFileInfo(filePath string) ([]byte, string, int64, e
 	if err != nil {
 		return nil, "", 0, err
 	}
-	// get the size
+
 	fileSize := fi.Size()
 
 	return fileContent, fileName, fileSize, nil
@@ -213,6 +304,7 @@ func (cm *CommandManager) printTexts() {
 		fmt.Printf("ID: %d\n", item.ID)
 		fmt.Printf("Meta: %s\n", item.Meta)
 		fmt.Printf("Text: %s\n", item.Text)
+		fmt.Println("--------------------")
 	}
 }
 
@@ -249,6 +341,6 @@ func (cm *CommandManager) printBinary() {
 		binTable.AddRow(map[string]interface{}{"ID": item.ID, "NAME": item.FileName, "SIZE": item.FileSize, "META": item.Meta})
 	}
 
-	fmt.Printf("\nCARD DATA: \n\n")
+	fmt.Printf("\nBINARY DATA: \n\n")
 	binTable.Print()
 }

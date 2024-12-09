@@ -2,6 +2,7 @@ package command
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/bbquite/go-pass-keeper/internal/models"
 )
@@ -17,6 +18,16 @@ func (cm *CommandManager) authCommand(params CommandParams) error {
 	if err != nil {
 		return err
 	}
+
+	jsOut, err := json.Marshal(cm.localStorage.Token)
+	if err != nil {
+		return err
+	}
+	err = cm.saveFile("./auth.json", jsOut)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -31,5 +42,15 @@ func (cm *CommandManager) registerCommand(params CommandParams) error {
 	if err != nil {
 		return err
 	}
+
+	jsOut, err := json.Marshal(cm.localStorage.Token)
+	if err != nil {
+		return err
+	}
+	err = cm.saveFile("./auth.json", jsOut)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

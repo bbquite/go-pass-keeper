@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"fmt"
+
 	encryptor "github.com/bbquite/go-pass-keeper/internal/encryption"
 	"github.com/bbquite/go-pass-keeper/internal/models"
 	"github.com/bbquite/go-pass-keeper/internal/utils"
@@ -97,13 +98,31 @@ func (s *DataService) GetDataList(ctx context.Context) ([]models.DataStoreFormat
 	for _, item := range resultDataList {
 		dd, err := s.DecryptData(&item)
 		if err != nil {
-			return resultDataList, fmt.Errorf("decryption error: %v", err)
+			continue
+			// return resultDataList, fmt.Errorf("decryption error: %v", err)
 		}
 
 		decryptedDataList = append(decryptedDataList, *dd)
 	}
 
 	return decryptedDataList, nil
+}
+
+func (s *DataService) GetDataByID(ctx context.Context, dataID uint32) (models.DataStoreFormat, error) {
+	var resultData models.DataStoreFormat
+	accountID := ctx.Value(utils.UserIDKey).(uint32)
+
+	resultData, err := s.store.GetDataByIDForUser(ctx, accountID, dataID)
+	if err != nil {
+		return resultData, err
+	}
+
+	decryptedData, err := s.DecryptData(&resultData)
+	if err != nil {
+		return resultData, fmt.Errorf("encryption error: %v", err)
+	}
+
+	return *decryptedData, nil
 }
 
 func (s *DataService) UpdateData(ctx context.Context, data *models.DataStoreFormat) error {

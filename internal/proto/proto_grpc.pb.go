@@ -23,6 +23,7 @@ const (
 	PassKeeperService_RegisterUser_FullMethodName = "/internal.proto.PassKeeperService/RegisterUser"
 	PassKeeperService_CreateData_FullMethodName   = "/internal.proto.PassKeeperService/CreateData"
 	PassKeeperService_GetDataList_FullMethodName  = "/internal.proto.PassKeeperService/GetDataList"
+	PassKeeperService_GetDataByID_FullMethodName  = "/internal.proto.PassKeeperService/GetDataByID"
 	PassKeeperService_UpdateData_FullMethodName   = "/internal.proto.PassKeeperService/UpdateData"
 	PassKeeperService_DeleteData_FullMethodName   = "/internal.proto.PassKeeperService/DeleteData"
 )
@@ -35,6 +36,7 @@ type PassKeeperServiceClient interface {
 	RegisterUser(ctx context.Context, in *RegisterUserRequest, opts ...grpc.CallOption) (*RegisterUserResponse, error)
 	CreateData(ctx context.Context, in *CreateDataRequest, opts ...grpc.CallOption) (*CreateDataResponse, error)
 	GetDataList(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*GetDataResponse, error)
+	GetDataByID(ctx context.Context, in *GetDataByIDRequest, opts ...grpc.CallOption) (*GetDataByIDResponse, error)
 	UpdateData(ctx context.Context, in *UpdateDataRequest, opts ...grpc.CallOption) (*Empty, error)
 	DeleteData(ctx context.Context, in *DeleteDataRequest, opts ...grpc.CallOption) (*Empty, error)
 }
@@ -87,6 +89,16 @@ func (c *passKeeperServiceClient) GetDataList(ctx context.Context, in *Empty, op
 	return out, nil
 }
 
+func (c *passKeeperServiceClient) GetDataByID(ctx context.Context, in *GetDataByIDRequest, opts ...grpc.CallOption) (*GetDataByIDResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetDataByIDResponse)
+	err := c.cc.Invoke(ctx, PassKeeperService_GetDataByID_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *passKeeperServiceClient) UpdateData(ctx context.Context, in *UpdateDataRequest, opts ...grpc.CallOption) (*Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Empty)
@@ -115,6 +127,7 @@ type PassKeeperServiceServer interface {
 	RegisterUser(context.Context, *RegisterUserRequest) (*RegisterUserResponse, error)
 	CreateData(context.Context, *CreateDataRequest) (*CreateDataResponse, error)
 	GetDataList(context.Context, *Empty) (*GetDataResponse, error)
+	GetDataByID(context.Context, *GetDataByIDRequest) (*GetDataByIDResponse, error)
 	UpdateData(context.Context, *UpdateDataRequest) (*Empty, error)
 	DeleteData(context.Context, *DeleteDataRequest) (*Empty, error)
 	mustEmbedUnimplementedPassKeeperServiceServer()
@@ -138,6 +151,9 @@ func (UnimplementedPassKeeperServiceServer) CreateData(context.Context, *CreateD
 }
 func (UnimplementedPassKeeperServiceServer) GetDataList(context.Context, *Empty) (*GetDataResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetDataList not implemented")
+}
+func (UnimplementedPassKeeperServiceServer) GetDataByID(context.Context, *GetDataByIDRequest) (*GetDataByIDResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetDataByID not implemented")
 }
 func (UnimplementedPassKeeperServiceServer) UpdateData(context.Context, *UpdateDataRequest) (*Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateData not implemented")
@@ -238,6 +254,24 @@ func _PassKeeperService_GetDataList_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _PassKeeperService_GetDataByID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetDataByIDRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PassKeeperServiceServer).GetDataByID(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PassKeeperService_GetDataByID_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PassKeeperServiceServer).GetDataByID(ctx, req.(*GetDataByIDRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _PassKeeperService_UpdateData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(UpdateDataRequest)
 	if err := dec(in); err != nil {
@@ -296,6 +330,10 @@ var PassKeeperService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetDataList",
 			Handler:    _PassKeeperService_GetDataList_Handler,
+		},
+		{
+			MethodName: "GetDataByID",
+			Handler:    _PassKeeperService_GetDataByID_Handler,
 		},
 		{
 			MethodName: "UpdateData",

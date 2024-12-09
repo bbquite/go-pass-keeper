@@ -4,14 +4,15 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+
 	"github.com/caarlos0/env/v11"
 )
 
 const (
 	defServerHost   = "localhost:8080"
-	defDatabaseHost = ""
+	defDatabaseHost = "host=localhost user=postgres password=123 dbname=gopasskeeper sslmode=disable"
 	defSecretKey    = "ytrfedghjfgjkhk123"
-	defCryptoKey    = "123456654321"
+	defCryptoKey    = "01234567890123456789012345678901"
 	defServerKey    = "./cert/server.key"
 	defServerCrt    = "./cert/server.crt"
 )
@@ -61,7 +62,7 @@ func (c *ServerConfig) GetSecretKey() string {
 	return c.JWTSecret
 }
 
-func (c *ServerConfig) GetCryptoKeyPath() string {
+func (c *ServerConfig) GetCryptoKey() string {
 	return c.CryptoKey
 }
 

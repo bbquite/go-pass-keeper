@@ -2,27 +2,35 @@ package config
 
 import (
 	"encoding/json"
-	"errors"
-	"github.com/joho/godotenv"
-	"os"
+	"flag"
+	"fmt"
+
+	"github.com/caarlos0/env/v11"
+)
+
+const (
+	defRemoteHost     = "localhost:8080"
+	defClientCertPath = "./cert/ca.pem"
 )
 
 type ClientConfig struct {
-	Host         string `json:"host"`
-	RootCertPath string `json:"root_cert_path"`
+	Host         string `json:"host" env:"HOST"`
+	RootCertPath string `json:"root_cert_path" env:"CLIENT_CRT_PATH"`
 }
 
-func (c *ClientConfig) GetFromENV() error {
-	err := godotenv.Load()
+func (c *ClientConfig) SetENV() error {
+	err := env.Parse(c)
 	if err != nil {
-		return errors.New(".env file not found")
-	}
-
-	if envRunAddress, ok := os.LookupEnv("HOST"); ok {
-		c.Host = envRunAddress
+		return fmt.Errorf("env not found: %w", err)
 	}
 
 	return nil
+}
+
+func (c *ClientConfig) SetFlags() {
+	flag.StringVar(&c.Host, "h", defRemoteHost, "remote host")
+	flag.StringVar(&c.RootCertPath, "ca", defClientCertPath, "root cert path")
+	flag.Parse()
 }
 
 func (c *ClientConfig) PrintConfig() []byte {

@@ -62,6 +62,15 @@ message GetDataResponse{
   ErrorResponse error = 2;
 }
 
+message GetDataByIDRequest{
+  uint32 id = 1;
+}
+
+message GetDataByIDResponse{
+  DataItem data = 1;
+  ErrorResponse error = 2;
+}
+
 message UpdateDataRequest{
   DataItem data = 1;
 }
@@ -76,6 +85,7 @@ service PassKeeperService {
 
   rpc CreateData(CreateDataRequest) returns (CreateDataResponse);
   rpc GetDataList(Empty) returns (GetDataResponse);
+  rpc GetDataByID(GetDataByIDRequest) returns (GetDataByIDResponse);
   rpc UpdateData(UpdateDataRequest) returns (Empty);
   rpc DeleteData(DeleteDataRequest) returns (Empty);
 }

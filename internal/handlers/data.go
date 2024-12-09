@@ -63,6 +63,30 @@ func (h *GRPCHandler) GetDataList(ctx context.Context, in *pb.Empty) (*pb.GetDat
 	return &response, nil
 }
 
+func (h *GRPCHandler) GetDataByID(ctx context.Context, in *pb.GetDataByIDRequest) (*pb.GetDataByIDResponse, error) {
+	response := pb.GetDataByIDResponse{}
+
+	resultData, err := h.dataService.GetDataByID(ctx, in.GetId())
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return &response, status.Error(codes.NotFound, err.Error())
+		}
+		h.logger.Error(err)
+		return &response, status.Error(codes.Internal, err.Error())
+	}
+
+	dataItem := pb.DataItem{
+		Id:       resultData.ID,
+		DataType: pb.DataTypeEnum(pb.DataTypeEnum_value[string(resultData.DataType)]),
+		DataInfo: resultData.DataInfo,
+		Meta:     resultData.Meta,
+	}
+
+	response.Data = &dataItem
+
+	return &response, nil
+}
+
 func (h *GRPCHandler) UpdateData(ctx context.Context, in *pb.UpdateDataRequest) (*pb.Empty, error) {
 	response := pb.Empty{}
 

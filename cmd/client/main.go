@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"log"
 
@@ -11,10 +10,6 @@ import (
 	"go.uber.org/zap"
 )
 
-const (
-	defServerHost = "localhost:8080"
-)
-
 var (
 	buildVersion = "N/A"
 	buildDate    = "N/A"
@@ -22,9 +17,7 @@ var (
 )
 
 func showBuildInfo() {
-	fmt.Printf("Build version: %s\n", buildVersion)
-	fmt.Printf("Build date: %s\n", buildDate)
-	fmt.Printf("Build commit: %s\n", buildCommit)
+	fmt.Printf("\nBuild version: %s\nBuild date: %s\nBuild commit: %s\n\n", buildVersion, buildDate, buildCommit)
 }
 
 func initServerLogger() (*zap.SugaredLogger, error) {
@@ -46,14 +39,9 @@ func main() {
 	}
 
 	cfg := new(config.ClientConfig)
-	flag.StringVar(&cfg.Host, "h", defServerHost, "remote host")
-	flag.StringVar(&cfg.RootCertPath, "ca", "./cert/ca.pem", "root cert path")
-	flag.Parse()
+	cfg.SetFlags()
+	cfg.SetENV()
 
-	err = cfg.GetFromENV()
-	if err != nil {
-		logger.Fatal(err)
-	}
 	logger.Infof("Client run with config: %s", cfg.PrintConfig())
 
 	grpcClient, err := clientApp.NewGRPCClient(cfg.Host, cfg.RootCertPath)

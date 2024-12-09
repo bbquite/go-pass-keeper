@@ -127,6 +127,29 @@ func (service *ClientDataService) DeleteData(ctx context.Context, dataID uint32)
 	return nil
 }
 
+func (service *ClientDataService) GetDataByID(ctx context.Context, dataID uint32) (models.DataStoreFormat, error) {
+
+	var resultData models.DataStoreFormat
+	token := service.store.GetToken()
+	if token == "" {
+		return resultData, fmt.Errorf("authorization only")
+	}
+
+	ctx = metadata.AppendToOutgoingContext(ctx, "authorization", "Bearer "+service.store.GetToken())
+
+	response, err := service.grpcClient.PBService.GetDataByID(ctx, &pb.GetDataByIDRequest{Id: dataID})
+	if err != nil {
+		return resultData, err
+	}
+
+	resultData.ID = response.Data.GetId()
+	resultData.Meta = response.Data.GetMeta()
+	resultData.DataInfo = response.Data.GetDataInfo()
+	resultData.DataType = models.DataTypeEnum(response.Data.DataType)
+
+	return resultData, nil
+}
+
 func (service *ClientDataService) GetData(ctx context.Context) error {
 
 	token := service.store.GetToken()
