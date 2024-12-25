@@ -23,7 +23,7 @@ func (cm *CommandManager) authCommand(params CommandParams) error {
 	if err != nil {
 		return err
 	}
-	err = cm.saveFile("./auth.json", jsOut)
+	err = cm.saveFile(cm.authFilePath, jsOut)
 	if err != nil {
 		return err
 	}

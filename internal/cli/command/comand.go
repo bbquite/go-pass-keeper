@@ -24,13 +24,16 @@ var (
 )
 
 type CommandExecute func() error
+type CommandActionWithParams func(params CommandParams) error
 type CommandThree map[string]Command
 
-type CommandParams map[string]struct {
+type CommandParamsItem struct {
 	validateFunc validator.ValidateFunc
 	usage        string
 	value        string
 }
+
+type CommandParams map[string]CommandParamsItem
 
 type Command struct {
 	Desc        string
@@ -54,6 +57,8 @@ type CommandManager struct {
 	localStorage *local.ClientStorage
 	authService  *clientService.ClientAuthService
 	dataService  *clientService.ClientDataService
+	authFilePath string
+	helpInfo     string
 	CommandRoot  CommandThree
 }
 
@@ -67,6 +72,8 @@ func NewCommandManager(grpcClient *client.GRPCClient, logger *zap.SugaredLogger)
 		localStorage: localStorage,
 		authService:  authService,
 		dataService:  dataService,
+		authFilePath: "./auth.json",
+		helpInfo:     "",
 	}
 
 	cm.initCommandsThree()
@@ -81,7 +88,7 @@ func NewCommandManager(grpcClient *client.GRPCClient, logger *zap.SugaredLogger)
 func (cm *CommandManager) authFromFile() error {
 	var jwtModel jwttoken.JWT
 
-	data, err := os.ReadFile("./auth.json")
+	data, err := os.ReadFile(cm.authFilePath)
 	if err != nil {
 		return err
 	}
@@ -128,369 +135,155 @@ func (cm *CommandManager) validateParams(params CommandParams) CommandParams {
 	return params
 }
 
+func (cm *CommandManager) executeWithParams(params CommandParams, action CommandActionWithParams) error {
+	validatedParams := cm.validateParams(params)
+	return action(validatedParams)
+}
+
 func (cm *CommandManager) initCommandsThree() {
 	commandRoot := CommandThree{
 		"AUTH": {
 			Desc: "Authorization in the system by login and password",
 			Execute: func() error {
-				params := CommandParams{
-					"username": {
-						validateFunc: validator.StringValidation,
-						value:        "",
-					},
-					"password": {
-						validateFunc: validator.StringValidation,
-						value:        "",
-					},
-				}
-				err := cm.authCommand(params)
-				if err != nil {
-					return err
-				}
-				return nil
+				return cm.executeWithParams(authParams, cm.authCommand)
 			},
 		},
 		"REGISTER": {
 			Desc: "Registration in the system",
 			Execute: func() error {
-				params := CommandParams{
-					"username": {
-						validateFunc: validator.StringValidation,
-						value:        "",
-					},
-					"password": {
-						validateFunc: validator.StringValidation,
-						value:        "",
-					},
-				}
-				err := cm.registerCommand(params)
-				if err != nil {
-					return err
-				}
-				return nil
+				return cm.executeWithParams(authParams, cm.registerCommand)
 			},
 		},
 		"SHOW": {
 			Desc: "Show records from remote server",
 			Execute: func() error {
-				err := cm.getCommand()
-				if err != nil {
-					return err
-				}
-				return nil
+				return cm.showCommand()
 			},
 		},
 		"GET": {
-			Desc: "Download data from remote server",
-			Subcommands: CommandThree{
-				"PAIR": {
-					Desc: "Download a key value pair (ALL)",
-					Execute: func() error {
-						err := cm.downloadCommand(models.DataTypePAIR)
-						if err != nil {
-							return err
-						}
-						return nil
-					},
-				},
-				"TEXT": {
-					Desc: "Download text data (ALL)",
-					Execute: func() error {
-						err := cm.downloadCommand(models.DataTypeTEXT)
-						if err != nil {
-							return err
-						}
-						return nil
-					},
-				},
-				"BINARY": {
-					Desc: "Download binary data (by ID)",
-					Execute: func() error {
-						params := CommandParams{
-							"id": {
-								validateFunc: validator.IntValidation,
-								value:        "",
-							},
-						}
-						err := cm.downloadCommand(models.DataTypeBINARY, params)
-						if err != nil {
-							return err
-						}
-						return nil
-					},
-				},
-				"CARD": {
-					Desc: "Creating card data",
-					Execute: func() error {
-						err := cm.downloadCommand(models.DataTypeCARD)
-						if err != nil {
-							return err
-						}
-						return nil
-					},
-				},
-			},
+			Desc:        "Download data from remote server",
+			Subcommands: cm.initGetCommands(),
 		},
 		"CREATE": {
-			Desc: "Creating a record in the system",
-			Subcommands: CommandThree{
-				"PAIR": {
-					Desc: "Create a key value pair",
-					Execute: func() error {
-						params := CommandParams{
-							"key": {
-								validateFunc: validator.StringValidation,
-								value:        "",
-							},
-							"pwd": {
-								validateFunc: validator.StringValidation,
-								value:        "",
-							},
-							"meta": {
-								validateFunc: validator.StringValidation,
-								value:        "",
-							},
-						}
-
-						err := cm.createCommand(models.DataTypePAIR, params)
-						if err != nil {
-							return err
-						}
-						return nil
-					},
-				},
-				"TEXT": {
-					Desc: "Creating text data",
-					Execute: func() error {
-						params := CommandParams{
-							"text": {
-								validateFunc: validator.StringValidationUnlimit,
-								value:        "",
-							},
-							"meta": {
-								validateFunc: validator.StringValidation,
-								value:        "",
-							},
-						}
-						err := cm.createCommand(models.DataTypeTEXT, params)
-						if err != nil {
-							return err
-						}
-						return nil
-					},
-				},
-				"BINARY": {
-					Desc: "Creating binary data",
-					Execute: func() error {
-						params := CommandParams{
-							"filepath": {
-								validateFunc: validator.FilePathValidation,
-								value:        "",
-							},
-							"meta": {
-								validateFunc: validator.StringValidation,
-								value:        "",
-							},
-						}
-						err := cm.createCommand(models.DataTypeBINARY, params)
-						if err != nil {
-							return err
-						}
-						return nil
-					},
-				},
-				"CARD": {
-					Desc: "Creating card data",
-					Execute: func() error {
-						params := CommandParams{
-							"number": {
-								validateFunc: validator.CardNumberValidation,
-								usage:        "4242 4242 4242 4242",
-								value:        "",
-							},
-							"cvv": {
-								validateFunc: validator.CardCvvValidation,
-								usage:        "777",
-								value:        "",
-							},
-							"owner": {
-								validateFunc: validator.StringValidation,
-								usage:        "IVAN IVANOV",
-								value:        "",
-							},
-							"exp": {
-								validateFunc: validator.DateValidation,
-								usage:        "ex. 01.06",
-								value:        "",
-							},
-							"meta": {
-								validateFunc: validator.StringValidation,
-								value:        "",
-							},
-						}
-						err := cm.createCommand(models.DataTypeCARD, params)
-						if err != nil {
-							return err
-						}
-						return nil
-					},
-				},
-			},
+			Desc:        "Creating a record in the system",
+			Subcommands: cm.initCreateCommands(),
 		},
 		"UPDATE": {
-			Desc: "Updating a record in the system",
-			Subcommands: CommandThree{
-				"PAIR": {
-					Desc: "Updating a key value pair",
-					Execute: func() error {
-						params := CommandParams{
-							"id": {
-								validateFunc: validator.IntValidation,
-								value:        "",
-							},
-							"key": {
-								validateFunc: validator.StringValidation,
-								value:        "",
-							},
-							"pwd": {
-								validateFunc: validator.StringValidation,
-								value:        "",
-							},
-							"meta": {
-								validateFunc: validator.StringValidation,
-								value:        "",
-							},
-						}
-						err := cm.updateCommand(models.DataTypePAIR, params)
-						if err != nil {
-							return err
-						}
-						return nil
-					},
-				},
-				"TEXT": {
-					Desc: "Updating text data",
-					Execute: func() error {
-						params := CommandParams{
-							"id": {
-								validateFunc: validator.IntValidation,
-								value:        "",
-							},
-							"text": {
-								validateFunc: validator.StringValidationUnlimit,
-								value:        "",
-							},
-							"meta": {
-								validateFunc: validator.StringValidation,
-								value:        "",
-							},
-						}
-						err := cm.updateCommand(models.DataTypeTEXT, params)
-						if err != nil {
-							return err
-						}
-						return nil
-					},
-				},
-				"BINARY": {
-					Desc: "Updating binary data",
-					Execute: func() error {
-						params := CommandParams{
-							"id": {
-								validateFunc: validator.IntValidation,
-								value:        "",
-							},
-							"filepath": {
-								validateFunc: validator.FilePathValidation,
-								value:        "",
-							},
-							"meta": {
-								validateFunc: validator.StringValidation,
-								value:        "",
-							},
-						}
-						err := cm.updateCommand(models.DataTypeBINARY, params)
-						if err != nil {
-							return err
-						}
-						return nil
-					},
-				},
-				"CARD": {
-					Desc: "Updating card data",
-					Execute: func() error {
-						params := CommandParams{
-							"id": {
-								validateFunc: validator.IntValidation,
-								value:        "",
-							},
-							"number": {
-								validateFunc: validator.CardNumberValidation,
-								usage:        "4242 4242 4242 4242",
-								value:        "",
-							},
-							"cvv": {
-								validateFunc: validator.CardCvvValidation,
-								usage:        "777",
-								value:        "",
-							},
-							"owner": {
-								validateFunc: validator.StringValidation,
-								usage:        "IVAN IVANOV",
-								value:        "",
-							},
-							"exp": {
-								validateFunc: validator.DateValidation,
-								usage:        "ex. 01.06",
-								value:        "",
-							},
-							"meta": {
-								validateFunc: validator.StringValidation,
-								value:        "",
-							},
-						}
-						err := cm.updateCommand(models.DataTypeCARD, params)
-						if err != nil {
-							return err
-						}
-						return nil
-					},
-				},
-			},
+			Desc:        "Updating a record in the system",
+			Subcommands: cm.initUpdateCommands(),
 		},
 		"DELETE": {
 			Desc: "Deleting a record in the system",
 			Execute: func() error {
-				params := CommandParams{
-					"id": {
-						validateFunc: validator.IntValidation,
-						value:        "",
-					},
-				}
-				err := cm.deleteCommand(params)
-				if err != nil {
-					return err
-				}
-				return nil
+				return cm.executeWithParams(onlyIDParams, cm.deleteCommand)
 			},
 		},
 		"DEBUG": {
 			Desc: "Data output for the developer",
 			Execute: func() error {
-				err := cm.dataService.Debug()
-				if err != nil {
-					return err
-				}
-				return nil
+				return cm.dataService.Debug()
 			},
 		},
 		"HELP": {
 			Desc: "Show information for help",
 			Execute: func() error {
-				log.Print("exec help")
+				log.Print(cm.helpInfo)
 				return nil
 			},
 		},
 	}
 	cm.CommandRoot = commandRoot
+}
+
+func (cm *CommandManager) initGetCommands() CommandThree {
+	cmThree := CommandThree{
+		"PAIR": {
+			Desc: "Download a key value pair (ALL)",
+			Execute: func() error {
+				return cm.downloadCommand(models.DataTypePAIR)
+			},
+		},
+		"TEXT": {
+			Desc: "Download text data (ALL)",
+			Execute: func() error {
+				return cm.downloadCommand(models.DataTypeTEXT)
+			},
+		},
+		"BINARY": {
+			Desc: "Download binary data (by ID)",
+			Execute: func() error {
+				return cm.downloadCommand(models.DataTypeBINARY, onlyIDParams)
+			},
+		},
+		"CARD": {
+			Desc: "Creating card data",
+			Execute: func() error {
+				return cm.downloadCommand(models.DataTypeCARD)
+			},
+		},
+	}
+
+	return cmThree
+}
+
+func (cm *CommandManager) initCreateCommands() CommandThree {
+	cmThree := CommandThree{
+		"PAIR": {
+			Desc: "Create a key value pair",
+			Execute: func() error {
+				return cm.createCommand(models.DataTypePAIR, pairParams)
+			},
+		},
+		"TEXT": {
+			Desc: "Creating text data",
+			Execute: func() error {
+				return cm.createCommand(models.DataTypeTEXT, textParams)
+			},
+		},
+		"BINARY": {
+			Desc: "Creating binary data",
+			Execute: func() error {
+				return cm.createCommand(models.DataTypeBINARY, binaryParams)
+			},
+		},
+		"CARD": {
+			Desc: "Creating card data",
+			Execute: func() error {
+				return cm.createCommand(models.DataTypeCARD, cardParams)
+			},
+		},
+	}
+
+	return cmThree
+}
+
+func (cm *CommandManager) initUpdateCommands() CommandThree {
+	cmThree := CommandThree{
+		"PAIR": {
+			Desc: "Updating a key value pair",
+			Execute: func() error {
+				return cm.updateCommand(models.DataTypePAIR, wrapIDParam(pairParams))
+			},
+		},
+		"TEXT": {
+			Desc: "Updating text data",
+			Execute: func() error {
+				return cm.updateCommand(models.DataTypeTEXT, wrapIDParam(textParams))
+			},
+		},
+		"BINARY": {
+			Desc: "Updating binary data",
+			Execute: func() error {
+				return cm.updateCommand(models.DataTypeBINARY, wrapIDParam(binaryParams))
+			},
+		},
+		"CARD": {
+			Desc: "Updating card data",
+			Execute: func() error {
+				return cm.updateCommand(models.DataTypeCARD, wrapIDParam(cardParams))
+			},
+		},
+	}
+
+	return cmThree
 }

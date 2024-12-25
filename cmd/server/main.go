@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/bbquite/go-pass-keeper/internal/config"
 	"log"
+
+	"github.com/bbquite/go-pass-keeper/internal/config"
 
 	"github.com/bbquite/go-pass-keeper/internal/app/server"
 	"go.uber.org/zap"
@@ -51,5 +52,8 @@ func main() {
 		logger.Fatal(err)
 	}
 
-	srv.RunGRPCServer()
+	err = srv.RunGRPCServer()
+	if err != nil {
+		logger.Fatal(err)
+	}
 }

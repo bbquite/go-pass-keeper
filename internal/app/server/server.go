@@ -2,14 +2,14 @@ package server
 
 import (
 	"fmt"
-	encryptor "github.com/bbquite/go-pass-keeper/internal/encryption"
-	"google.golang.org/grpc/credentials"
-	"log"
 	"net"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	encryptor "github.com/bbquite/go-pass-keeper/internal/encryption"
+	"google.golang.org/grpc/credentials"
 
 	"github.com/bbquite/go-pass-keeper/internal/interceptors"
 	jwttoken "github.com/bbquite/go-pass-keeper/pkg/jwt_token"
@@ -62,7 +62,7 @@ func NewGRPCServer(cfg *config.ServerConfig, logger *zap.SugaredLogger) (*gRPCSe
 
 	err = serverInit.loadServerInterceptors()
 	if err != nil {
-		log.Fatal(err)
+		return nil, fmt.Errorf("server interceptor init error: %v", err)
 	}
 
 	return serverInit, nil
@@ -75,19 +75,19 @@ func (s *gRPCServer) loadServerInterceptors() error {
 	return nil
 }
 
-func (s *gRPCServer) RunGRPCServer() {
+func (s *gRPCServer) RunGRPCServer() error {
 
 	signalCh := make(chan os.Signal, 1)
 	signal.Notify(signalCh, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
 
 	listen, err := net.Listen("tcp", s.cfg.Host)
 	if err != nil {
-		log.Fatalf("error occured while running gRPC server: %v", err)
+		return fmt.Errorf("error occured while running gRPC server: %v", err)
 	}
 
 	grpcCredos, err := credentials.NewServerTLSFromFile(s.cfg.GetServerCrtPath(), s.cfg.GetServerKeyPath())
 	if err != nil {
-		log.Fatalf("failed to load TLS certificates: %v", err)
+		return fmt.Errorf("failed to load TLS certificates: %v", err)
 	}
 
 	grpcServer := grpc.NewServer(
@@ -96,10 +96,11 @@ func (s *gRPCServer) RunGRPCServer() {
 	reflection.Register(grpcServer)
 	pb.RegisterPassKeeperServiceServer(grpcServer, s.handler)
 
-	go func() {
+	go func() error {
 		if err := grpcServer.Serve(listen); err != nil {
-			log.Fatalf("error occured while running gRPC server: %v", err)
+			return fmt.Errorf("error occured while running gRPC server: %v", err)
 		}
+		return nil
 	}()
 
 	sig := <-signalCh
@@ -109,4 +110,6 @@ func (s *gRPCServer) RunGRPCServer() {
 	s.dbStorage.DB.Close()
 
 	s.logger.Info("Server shutdown gracefully")
+
+	return nil
 }

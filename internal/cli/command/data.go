@@ -159,7 +159,7 @@ func (cm *CommandManager) deleteCommand(params CommandParams) error {
 	return nil
 }
 
-func (cm *CommandManager) getCommand() error {
+func (cm *CommandManager) showCommand() error {
 
 	err := cm.dataService.GetData(context.Background())
 	if err != nil {
