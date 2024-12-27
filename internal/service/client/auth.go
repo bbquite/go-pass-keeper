@@ -59,7 +59,10 @@ func (service *ClientAuthService) RegisterUser(ctx context.Context, userData *mo
 	}
 
 	token.Token = resp.GetToken()
-	service.store.SetToken(&token)
+	err = service.store.SetToken(&token)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -92,7 +95,10 @@ func (service *ClientAuthService) AuthUser(ctx context.Context, userData *models
 	}
 
 	token.Token = resp.GetToken()
-	service.store.SetToken(&token)
+	err = service.store.SetToken(&token)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

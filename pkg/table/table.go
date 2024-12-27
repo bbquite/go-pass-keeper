@@ -24,7 +24,7 @@
 // For more information, please refer to <http://unlicense.org>
 //
 
-// Package clitable implements methods for pretty command line table output.
+// Package clitable implements methods for pretty commands line table output.
 package clitable
 
 import (

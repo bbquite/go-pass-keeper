@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/bbquite/go-pass-keeper/internal/models"
 	_ "github.com/jackc/pgx/v5/stdlib"
@@ -11,25 +12,22 @@ func (storage *DBStorage) CreateData(ctx context.Context, accountID uint32, data
 	sqlString := `
 		INSERT INTO public.pass_keeper_data (data_type, data_info, meta, account_id) 
 		VALUES ($1, $2, $3, $4)
-		RETURNING id, data_type, data_info, meta, uploaded_at
+		RETURNING id, uploaded_at
 	`
 
-	var resultData models.DataStoreFormat
+	resultData := data
 	args := []any{data.DataType, data.DataInfo, data.Meta, accountID}
 
 	row := storage.DB.QueryRowContext(ctx, sqlString, args...)
 	err := row.Scan(
 		&resultData.ID,
-		&resultData.DataType,
-		&resultData.DataInfo,
-		&resultData.Meta,
 		&resultData.UploadedAt,
 	)
 	if err != nil {
-		return resultData, err
+		return *resultData, err
 	}
 
-	return resultData, nil
+	return *resultData, nil
 }
 
 func (storage *DBStorage) GetDataList(ctx context.Context, accountID uint32) ([]models.DataStoreFormat, error) {
@@ -57,6 +55,8 @@ func (storage *DBStorage) GetDataList(ctx context.Context, accountID uint32) ([]
 		result = append(result, storedItem)
 	}
 
+	defer rows.Close()
+
 	return result, nil
 }
 
@@ -67,7 +67,6 @@ func (storage *DBStorage) GetDataByIDForUser(ctx context.Context, accountID uint
 		SELECT id, data_type, data_info, meta, uploaded_at 
 		FROM public.pass_keeper_data 
 		WHERE id = $1 AND account_id = $2
-		LIMIT 1
 	`
 
 	row := storage.DB.QueryRowContext(ctx, sqlString, storedDataID, accountID)
@@ -88,9 +87,17 @@ func (storage *DBStorage) UpdateData(ctx context.Context, accountID uint32, data
 
 	args := []any{data.DataInfo, data.Meta, data.ID, accountID, data.DataType}
 
-	_, err := storage.DB.ExecContext(ctx, sqlString, args...)
+	result, err := storage.DB.ExecContext(ctx, sqlString, args...)
 	if err != nil {
 		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rowsAffected == 0 {
+		return fmt.Errorf("no rows updated for data ID %d", data.ID)
 	}
 
 	return nil
@@ -102,9 +109,17 @@ func (storage *DBStorage) DeleteData(ctx context.Context, accountID uint32, stor
 		WHERE id = $1 and account_id = $2
 	`
 
-	_, err := storage.DB.ExecContext(ctx, sqlString, storedDataID, accountID)
+	result, err := storage.DB.ExecContext(ctx, sqlString, storedDataID, accountID)
 	if err != nil {
 		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rowsAffected == 0 {
+		return fmt.Errorf("no rows updated for data ID %d", storedDataID)
 	}
 
 	return nil

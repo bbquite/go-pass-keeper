@@ -14,7 +14,6 @@ func (storage *DBStorage) GetAccountByUsername(ctx context.Context, username str
 		SELECT id 
 		FROM public.account 
 		WHERE username = $1 
-		LIMIT 1
 	`
 
 	row := storage.DB.QueryRowContext(ctx, sqlString, username)
@@ -33,7 +32,6 @@ func (storage *DBStorage) GetAccountByLoginData(ctx context.Context, username st
 		SELECT id 
 		FROM public.account 
 		WHERE username = $1 AND password = $2
-		LIMIT 1
 	`
 
 	row := storage.DB.QueryRowContext(ctx, sqlString, username, password)

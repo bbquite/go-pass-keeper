@@ -1,13 +1,10 @@
-package command
+package commands
 
 import (
 	"bufio"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
-	"os"
-
 	"github.com/bbquite/go-pass-keeper/internal/app/client"
 	"github.com/bbquite/go-pass-keeper/internal/cli/validator"
 	"github.com/bbquite/go-pass-keeper/internal/models"
@@ -16,41 +13,45 @@ import (
 	jwttoken "github.com/bbquite/go-pass-keeper/pkg/jwt_token"
 	"github.com/fatih/color"
 	"go.uber.org/zap"
+	"log"
+	"os"
 )
 
 var (
-	ErrorNoExecution    = errors.New("no command execution found")
-	ErrorUnknownCommand = errors.New("unknown command")
+	ErrorNoExecution    = errors.New("no commands execution found")
+	ErrorUnknownCommand = errors.New("unknown commands")
 )
 
-type CommandExecute func() error
-type CommandActionWithParams func(params CommandParams) error
-type CommandThree map[string]Command
+type (
+	CommandParamsItem struct {
+		validateFunc validator.ValidateFunc
+		usage        string
+		value        string
+	}
 
-type CommandParamsItem struct {
-	validateFunc validator.ValidateFunc
-	usage        string
-	value        string
-}
+	CommandParams           map[string]CommandParamsItem
+	CommandActionWithParams func(params CommandParams) error
 
-type CommandParams map[string]CommandParamsItem
+	CommandExecute func() error
+	CommandThree   map[string]Command
 
-type Command struct {
-	Desc        string
-	Usage       string
-	Execute     CommandExecute
-	Subcommands CommandThree
-}
+	Command struct {
+		Desc        string
+		Usage       string
+		Execute     CommandExecute
+		Subcommands CommandThree
+	}
+)
 
-func (c *Command) GetSubCommandsNames() string {
+func (c *Command) GetSubCommandsNames() []string {
 	if c.Subcommands != nil {
-		cNames := "| "
+		var cNames []string
 		for name, _ := range c.Subcommands {
-			cNames += fmt.Sprintf("%s | ", name)
+			cNames = append(cNames, name)
 		}
 		return cNames
 	}
-	return ""
+	return nil
 }
 
 type CommandManager struct {
@@ -135,23 +136,18 @@ func (cm *CommandManager) validateParams(params CommandParams) CommandParams {
 	return params
 }
 
-func (cm *CommandManager) executeWithParams(params CommandParams, action CommandActionWithParams) error {
-	validatedParams := cm.validateParams(params)
-	return action(validatedParams)
-}
-
 func (cm *CommandManager) initCommandsThree() {
 	commandRoot := CommandThree{
 		"AUTH": {
 			Desc: "Authorization in the system by login and password",
 			Execute: func() error {
-				return cm.executeWithParams(authParams, cm.authCommand)
+				return cm.authCommand(authParams)
 			},
 		},
 		"REGISTER": {
 			Desc: "Registration in the system",
 			Execute: func() error {
-				return cm.executeWithParams(authParams, cm.registerCommand)
+				return cm.registerCommand(authParams)
 			},
 		},
 		"SHOW": {
@@ -175,7 +171,8 @@ func (cm *CommandManager) initCommandsThree() {
 		"DELETE": {
 			Desc: "Deleting a record in the system",
 			Execute: func() error {
-				return cm.executeWithParams(onlyIDParams, cm.deleteCommand)
+				var p CommandParams
+				return cm.deleteCommand(wrapIDParam(p))
 			},
 		},
 		"DEBUG": {
@@ -185,7 +182,7 @@ func (cm *CommandManager) initCommandsThree() {
 			},
 		},
 		"HELP": {
-			Desc: "Show information for help",
+			Desc: "Show help information",
 			Execute: func() error {
 				log.Print(cm.helpInfo)
 				return nil
@@ -212,7 +209,8 @@ func (cm *CommandManager) initGetCommands() CommandThree {
 		"BINARY": {
 			Desc: "Download binary data (by ID)",
 			Execute: func() error {
-				return cm.downloadCommand(models.DataTypeBINARY, onlyIDParams)
+				var p CommandParams
+				return cm.downloadCommand(models.DataTypeBINARY, wrapIDParam(p))
 			},
 		},
 		"CARD": {

@@ -3,7 +3,6 @@ package server
 import (
 	"context"
 	"fmt"
-
 	encryptor "github.com/bbquite/go-pass-keeper/internal/encryption"
 	"github.com/bbquite/go-pass-keeper/internal/models"
 	"github.com/bbquite/go-pass-keeper/internal/utils"
@@ -67,9 +66,22 @@ func (s *DataService) DecryptData(data *models.DataStoreFormat) (*models.DataSto
 	return data, nil
 }
 
+func (s *DataService) getAccountIDFromContext(ctx context.Context) (uint32, error) {
+	accountIDKey := ctx.Value(utils.AccountIDKey)
+	accountID, ok := accountIDKey.(uint32)
+	if !ok {
+		return 0, fmt.Errorf("invalid account ID format")
+	}
+	return accountID, nil
+}
+
 func (s *DataService) CreateData(ctx context.Context, data *models.DataStoreFormat) (models.DataStoreFormat, error) {
 	var resultData models.DataStoreFormat
-	accountID := ctx.Value(utils.UserIDKey).(uint32)
+
+	accountID, err := s.getAccountIDFromContext(ctx)
+	if err != nil {
+		return resultData, err
+	}
 
 	encryptedData, err := s.EncryptData(data)
 	if err != nil {
@@ -86,9 +98,13 @@ func (s *DataService) CreateData(ctx context.Context, data *models.DataStoreForm
 
 func (s *DataService) GetDataList(ctx context.Context) ([]models.DataStoreFormat, error) {
 	var resultDataList []models.DataStoreFormat
-	accountID := ctx.Value(utils.UserIDKey).(uint32)
 
-	resultDataList, err := s.store.GetDataList(ctx, accountID)
+	accountID, err := s.getAccountIDFromContext(ctx)
+	if err != nil {
+		return resultDataList, err
+	}
+
+	resultDataList, err = s.store.GetDataList(ctx, accountID)
 	if err != nil {
 		return resultDataList, err
 	}
@@ -110,9 +126,13 @@ func (s *DataService) GetDataList(ctx context.Context) ([]models.DataStoreFormat
 
 func (s *DataService) GetDataByID(ctx context.Context, dataID uint32) (models.DataStoreFormat, error) {
 	var resultData models.DataStoreFormat
-	accountID := ctx.Value(utils.UserIDKey).(uint32)
 
-	resultData, err := s.store.GetDataByIDForUser(ctx, accountID, dataID)
+	accountID, err := s.getAccountIDFromContext(ctx)
+	if err != nil {
+		return resultData, err
+	}
+
+	resultData, err = s.store.GetDataByIDForUser(ctx, accountID, dataID)
 	if err != nil {
 		return resultData, err
 	}
@@ -126,10 +146,12 @@ func (s *DataService) GetDataByID(ctx context.Context, dataID uint32) (models.Da
 }
 
 func (s *DataService) UpdateData(ctx context.Context, data *models.DataStoreFormat) error {
+	accountID, err := s.getAccountIDFromContext(ctx)
+	if err != nil {
+		return err
+	}
 
-	accountID := ctx.Value(utils.UserIDKey).(uint32)
-
-	_, err := s.store.GetDataByIDForUser(ctx, accountID, data.ID)
+	_, err = s.store.GetDataByIDForUser(ctx, accountID, data.ID)
 	if err != nil {
 		return err
 	}
@@ -148,10 +170,12 @@ func (s *DataService) UpdateData(ctx context.Context, data *models.DataStoreForm
 }
 
 func (s *DataService) DeleteData(ctx context.Context, dataID uint32) error {
+	accountID, err := s.getAccountIDFromContext(ctx)
+	if err != nil {
+		return err
+	}
 
-	accountID := ctx.Value(utils.UserIDKey).(uint32)
-
-	_, err := s.store.GetDataByIDForUser(ctx, accountID, dataID)
+	_, err = s.store.GetDataByIDForUser(ctx, accountID, dataID)
 	if err != nil {
 		return err
 	}

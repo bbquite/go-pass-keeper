@@ -39,7 +39,7 @@ func (ai *AuthInterceptor) Unary() grpc.UnaryServerInterceptor {
 			return nil, err
 		}
 
-		ctx = context.WithValue(ctx, utils.UserIDKey, userID)
+		ctx = context.WithValue(ctx, utils.AccountIDKey, userID)
 
 		return handler(ctx, req)
 	}
