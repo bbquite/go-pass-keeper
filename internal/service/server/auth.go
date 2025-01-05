@@ -16,7 +16,7 @@ var (
 )
 
 type authStorageRepo interface {
-	CreateAccount(ctx context.Context, username string, password string, email string) (uint32, error)
+	CreateAccount(ctx context.Context, username string, password string) (uint32, error)
 	GetAccountByUsername(ctx context.Context, username string) (models.Account, error)
 	GetAccountByLoginData(ctx context.Context, username string, password string) (models.Account, error)
 }
@@ -43,7 +43,7 @@ func (service *AuthService) RegisterUser(ctx context.Context, userData *models.U
 		if errors.Is(err, sql.ErrNoRows) {
 
 			userID, err := service.store.CreateAccount(
-				ctx, userData.Username, utils.GenerateSHAString(userData.Password), userData.Email)
+				ctx, userData.Username, utils.GenerateSHAString(userData.Password))
 			if err != nil {
 				return token, err
 			}
@@ -62,7 +62,7 @@ func (service *AuthService) RegisterUser(ctx context.Context, userData *models.U
 	return token, ErrUserAlreadyExists
 }
 
-func (service *AuthService) AuthUser(ctx context.Context, userData *models.UserLoginData) (jwttoken.JWT, error) {
+func (service *AuthService) AuthUser(ctx context.Context, userData *models.UserAccountData) (jwttoken.JWT, error) {
 	var token jwttoken.JWT
 
 	shaInputPassword := utils.GenerateSHAString(userData.Password)

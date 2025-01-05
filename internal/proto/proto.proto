@@ -11,23 +11,12 @@ message ErrorResponse {
 
 message Empty {}
 
-message AuthUserRequest {
+message UserAccountRequest {
   string username = 1;
   string password = 2;
 }
 
-message AuthUserResponse {
-  string token = 1;
-  ErrorResponse error = 2;
-}
-
-message RegisterUserRequest {
-  string username = 1;
-  string password = 2;
-  string email = 3;
-}
-
-message RegisterUserResponse {
+message UserAccountResponse {
   string token = 1;
   ErrorResponse error = 2;
 }
@@ -80,8 +69,8 @@ message DeleteDataRequest{
 }
 
 service PassKeeperService {
-  rpc AuthUser(AuthUserRequest) returns (AuthUserResponse);
-  rpc RegisterUser(RegisterUserRequest) returns (RegisterUserResponse);
+  rpc AuthUser(UserAccountRequest) returns (UserAccountResponse);
+  rpc RegisterUser(UserAccountRequest) returns (UserAccountResponse);
 
   rpc CreateData(CreateDataRequest) returns (CreateDataResponse);
   rpc GetDataList(Empty) returns (GetDataResponse);

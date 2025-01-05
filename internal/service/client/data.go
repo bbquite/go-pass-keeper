@@ -116,15 +116,8 @@ func (service *ClientDataService) DeleteData(ctx context.Context, dataID uint32)
 
 	ctx = metadata.AppendToOutgoingContext(ctx, "authorization", "Bearer "+service.store.GetToken())
 
-	_, err := service.grpcClient.PBService.DeleteData(ctx, &pb.DeleteDataRequest{
-		Id: dataID,
-	})
-
-	if err != nil {
-		return err
-	}
-
-	return nil
+	_, err := service.grpcClient.PBService.DeleteData(ctx, &pb.DeleteDataRequest{Id: dataID})
+	return err
 }
 
 func (service *ClientDataService) GetDataByID(ctx context.Context, dataID uint32) (models.DataStoreFormat, error) {

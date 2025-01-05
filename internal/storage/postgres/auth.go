@@ -43,15 +43,15 @@ func (storage *DBStorage) GetAccountByLoginData(ctx context.Context, username st
 	return account, nil
 }
 
-func (storage *DBStorage) CreateAccount(ctx context.Context, username string, password string, email string) (uint32, error) {
+func (storage *DBStorage) CreateAccount(ctx context.Context, username string, password string) (uint32, error) {
 	sqlString := `
-		INSERT INTO public.account (username, password, email) 
-		VALUES ($1, $2, $3)
+		INSERT INTO public.account (username, password) 
+		VALUES ($1, $2)
 		RETURNING id
 	`
 
 	var userID uint32
-	row := storage.DB.QueryRowContext(ctx, sqlString, username, password, email)
+	row := storage.DB.QueryRowContext(ctx, sqlString, username, password)
 	err := row.Scan(&userID)
 	if err != nil {
 		return 0, err

@@ -66,15 +66,6 @@ func (service *ClientAuthService) RegisterUser(ctx context.Context, userData *mo
 	return nil
 }
 
-func (service *ClientAuthService) Debug() error {
-	out, err := service.store.Debug()
-	if err != nil {
-		return err
-	}
-	service.logger.Debugf("%s", out)
-	return nil
-}
-
 func (service *ClientAuthService) AuthUser(ctx context.Context, userData *models.UserAccountData) error {
 	var token jwttoken.JWT
 
