@@ -2,7 +2,6 @@ package commands
 
 import (
 	"bufio"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/bbquite/go-pass-keeper/internal/app/client"
@@ -10,7 +9,6 @@ import (
 	"github.com/bbquite/go-pass-keeper/internal/models"
 	clientService "github.com/bbquite/go-pass-keeper/internal/service/client"
 	"github.com/bbquite/go-pass-keeper/internal/storage/local"
-	jwttoken "github.com/bbquite/go-pass-keeper/pkg/jwt_token"
 	"github.com/fatih/color"
 	"go.uber.org/zap"
 	"log"
@@ -23,15 +21,15 @@ var (
 )
 
 type (
+	CommandActionWithTypeParams func(dataType models.DataTypeEnum, params CommandParams) error
+
 	CommandParamsItem struct {
 		validateFunc validator.ValidateFunc
 		usage        string
 		value        string
 	}
 
-	CommandParams           map[string]CommandParamsItem
-	CommandActionWithParams func(params CommandParams) error
-
+	CommandParams  map[string]CommandParamsItem
 	CommandExecute func() error
 	CommandThree   map[string]Command
 
@@ -55,12 +53,16 @@ func (c *Command) GetSubCommandsNames() []string {
 }
 
 type CommandManager struct {
-	localStorage *local.ClientStorage
-	authService  *clientService.ClientAuthService
-	dataService  *clientService.ClientDataService
-	authFilePath string
-	helpInfo     string
-	CommandRoot  CommandThree
+	localStorage         *local.ClientStorage
+	authService          *clientService.ClientAuthService
+	dataService          *clientService.ClientDataService
+	authFilePath         string
+	pairExportFilePath   string
+	textExportFilePath   string
+	cardExportFilePath   string
+	binaryExportFilePath string
+	helpInfo             string
+	CommandRoot          CommandThree
 }
 
 func NewCommandManager(grpcClient *client.GRPCClient, logger *zap.SugaredLogger) *CommandManager {
@@ -70,38 +72,23 @@ func NewCommandManager(grpcClient *client.GRPCClient, logger *zap.SugaredLogger)
 	dataService := clientService.NewClientDataService(grpcClient, localStorage, logger)
 
 	cm := &CommandManager{
-		localStorage: localStorage,
-		authService:  authService,
-		dataService:  dataService,
-		authFilePath: "./auth.json",
-		helpInfo:     "",
+		localStorage:       localStorage,
+		authService:        authService,
+		dataService:        dataService,
+		authFilePath:       "./auth.json",
+		pairExportFilePath: "./pairExport.json",
+		textExportFilePath: "./textExport.json",
+		cardExportFilePath: "./cardExport.json",
+		helpInfo:           "",
 	}
 
 	cm.initCommandsThree()
-	err := cm.authFromFile()
+	err := cm.importTokenFromFile()
 	if err != nil {
 		fmt.Printf("auth file not found: %v\n", err)
 	}
 
 	return cm
-}
-
-func (cm *CommandManager) authFromFile() error {
-	var jwtModel jwttoken.JWT
-
-	data, err := os.ReadFile(cm.authFilePath)
-	if err != nil {
-		return err
-	}
-
-	err = json.Unmarshal(data, &jwtModel)
-	if err != nil {
-		return err
-	}
-
-	cm.localStorage.SetToken(&jwtModel)
-
-	return nil
 }
 
 func (cm *CommandManager) validateParams(params CommandParams) CommandParams {
@@ -141,13 +128,13 @@ func (cm *CommandManager) initCommandsThree() {
 		"AUTH": {
 			Desc: "Authorization in the system by login and password",
 			Execute: func() error {
-				return cm.authCommand(authParams)
+				return cm.logINOUTAction(authParams, cm.authService.AuthUser)
 			},
 		},
 		"REGISTER": {
 			Desc: "Registration in the system",
 			Execute: func() error {
-				return cm.registerCommand(authParams)
+				return cm.logINOUTAction(authParams, cm.authService.RegisterUser)
 			},
 		},
 		"SHOW": {
@@ -158,7 +145,7 @@ func (cm *CommandManager) initCommandsThree() {
 		},
 		"GET": {
 			Desc:        "Download data from remote server",
-			Subcommands: cm.initGetCommands(),
+			Subcommands: cm.initExportCommands(),
 		},
 		"CREATE": {
 			Desc:        "Creating a record in the system",
@@ -172,7 +159,7 @@ func (cm *CommandManager) initCommandsThree() {
 			Desc: "Deleting a record in the system",
 			Execute: func() error {
 				var p CommandParams
-				return cm.deleteCommand(wrapIDParam(p))
+				return cm.checkTokenWrapper(models.DataTypeUNDEFINE, wrapIDParam(p), cm.deleteCommand)
 			},
 		},
 		"DEBUG": {
@@ -192,31 +179,31 @@ func (cm *CommandManager) initCommandsThree() {
 	cm.CommandRoot = commandRoot
 }
 
-func (cm *CommandManager) initGetCommands() CommandThree {
+func (cm *CommandManager) initExportCommands() CommandThree {
+	var p CommandParams
 	cmThree := CommandThree{
 		"PAIR": {
 			Desc: "Download a key value pair (ALL)",
 			Execute: func() error {
-				return cm.downloadCommand(models.DataTypePAIR)
+				return cm.checkTokenWrapper(models.DataTypePAIR, p, cm.exportCommand)
 			},
 		},
 		"TEXT": {
 			Desc: "Download text data (ALL)",
 			Execute: func() error {
-				return cm.downloadCommand(models.DataTypeTEXT)
+				return cm.checkTokenWrapper(models.DataTypeTEXT, p, cm.exportCommand)
 			},
 		},
 		"BINARY": {
 			Desc: "Download binary data (by ID)",
 			Execute: func() error {
-				var p CommandParams
-				return cm.downloadCommand(models.DataTypeBINARY, wrapIDParam(p))
+				return cm.checkTokenWrapper(models.DataTypeBINARY, wrapIDParam(p), cm.exportCommand)
 			},
 		},
 		"CARD": {
 			Desc: "Creating card data",
 			Execute: func() error {
-				return cm.downloadCommand(models.DataTypeCARD)
+				return cm.checkTokenWrapper(models.DataTypeCARD, p, cm.exportCommand)
 			},
 		},
 	}
@@ -229,25 +216,25 @@ func (cm *CommandManager) initCreateCommands() CommandThree {
 		"PAIR": {
 			Desc: "Create a key value pair",
 			Execute: func() error {
-				return cm.createCommand(models.DataTypePAIR, pairParams)
+				return cm.checkTokenWrapper(models.DataTypeTEXT, pairParams, cm.createCommand)
 			},
 		},
 		"TEXT": {
 			Desc: "Creating text data",
 			Execute: func() error {
-				return cm.createCommand(models.DataTypeTEXT, textParams)
+				return cm.checkTokenWrapper(models.DataTypeTEXT, textParams, cm.createCommand)
 			},
 		},
 		"BINARY": {
 			Desc: "Creating binary data",
 			Execute: func() error {
-				return cm.createCommand(models.DataTypeBINARY, binaryParams)
+				return cm.checkTokenWrapper(models.DataTypeBINARY, binaryParams, cm.createCommand)
 			},
 		},
 		"CARD": {
 			Desc: "Creating card data",
 			Execute: func() error {
-				return cm.createCommand(models.DataTypeCARD, cardParams)
+				return cm.checkTokenWrapper(models.DataTypeCARD, cardParams, cm.createCommand)
 			},
 		},
 	}
@@ -260,25 +247,25 @@ func (cm *CommandManager) initUpdateCommands() CommandThree {
 		"PAIR": {
 			Desc: "Updating a key value pair",
 			Execute: func() error {
-				return cm.updateCommand(models.DataTypePAIR, wrapIDParam(pairParams))
+				return cm.checkTokenWrapper(models.DataTypePAIR, wrapIDParam(pairParams), cm.updateCommand)
 			},
 		},
 		"TEXT": {
 			Desc: "Updating text data",
 			Execute: func() error {
-				return cm.updateCommand(models.DataTypeTEXT, wrapIDParam(textParams))
+				return cm.checkTokenWrapper(models.DataTypeTEXT, wrapIDParam(textParams), cm.updateCommand)
 			},
 		},
 		"BINARY": {
 			Desc: "Updating binary data",
 			Execute: func() error {
-				return cm.updateCommand(models.DataTypeBINARY, wrapIDParam(binaryParams))
+				return cm.checkTokenWrapper(models.DataTypeBINARY, wrapIDParam(binaryParams), cm.updateCommand)
 			},
 		},
 		"CARD": {
 			Desc: "Updating card data",
 			Execute: func() error {
-				return cm.updateCommand(models.DataTypeCARD, wrapIDParam(cardParams))
+				return cm.checkTokenWrapper(models.DataTypeCARD, wrapIDParam(cardParams), cm.updateCommand)
 			},
 		},
 	}

@@ -3,54 +3,64 @@ package commands
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"github.com/bbquite/go-pass-keeper/internal/utils"
+	jwttoken "github.com/bbquite/go-pass-keeper/pkg/jwt_token"
+	"os"
 
 	"github.com/bbquite/go-pass-keeper/internal/models"
 )
 
-func (cm *CommandManager) authCommand(params CommandParams) error {
-
+func (cm *CommandManager) logINOUTAction(params CommandParams, action func(ctx context.Context, userData *models.UserAccountData) error) error {
 	paramsValidated := cm.validateParams(params)
-
-	err := cm.authService.AuthUser(context.Background(), &models.UserLoginData{
+	loginData := &models.UserAccountData{
 		Username: paramsValidated["username"].value,
 		Password: paramsValidated["password"].value,
-	})
+	}
+
+	err := action(context.Background(), loginData)
 	if err != nil {
 		return err
 	}
 
+	return cm.saveTokenToFile()
+}
+
+func (cm *CommandManager) checkTokenWrapper(dataType models.DataTypeEnum, params CommandParams, action CommandActionWithTypeParams) error {
+	token := cm.localStorage.GetToken()
+	if token == "" {
+		return fmt.Errorf("authorization only, run \"AUTH\"")
+	}
+
+	return action(dataType, params)
+}
+
+func (cm *CommandManager) saveTokenToFile() error {
 	jsOut, err := json.Marshal(cm.localStorage.Token)
 	if err != nil {
 		return err
 	}
-	err = cm.saveFile(cm.authFilePath, jsOut)
+	err = utils.SaveFile(cm.authFilePath, jsOut)
 	if err != nil {
 		return err
 	}
-
 	return nil
 }
 
-func (cm *CommandManager) registerCommand(params CommandParams) error {
+func (cm *CommandManager) importTokenFromFile() error {
+	var jwtModel jwttoken.JWT
 
-	paramsValidated := cm.validateParams(params)
-
-	err := cm.authService.RegisterUser(context.Background(), &models.UserRegisterData{
-		Username: paramsValidated["username"].value,
-		Password: paramsValidated["password"].value,
-	})
+	data, err := os.ReadFile(cm.authFilePath)
 	if err != nil {
 		return err
 	}
 
-	jsOut, err := json.Marshal(cm.localStorage.Token)
+	err = json.Unmarshal(data, &jwtModel)
 	if err != nil {
 		return err
 	}
-	err = cm.saveFile("./auth.json", jsOut)
-	if err != nil {
-		return err
-	}
+
+	cm.localStorage.SetToken(&jwtModel)
 
 	return nil
 }

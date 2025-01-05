@@ -11,7 +11,7 @@ import (
 )
 
 func (h *GRPCHandler) RegisterUser(ctx context.Context, in *pb.RegisterUserRequest) (*pb.RegisterUserResponse, error) {
-	userData := models.UserRegisterData{
+	userData := models.UserAccountData{
 		Username: in.Username,
 		Password: in.Password,
 		Email:    in.Email,

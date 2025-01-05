@@ -35,7 +35,7 @@ func NewAuthService(store authStorageRepo, jwtManager *jwttoken.JWTManager, logg
 	}
 }
 
-func (service *AuthService) RegisterUser(ctx context.Context, userData *models.UserRegisterData) (jwttoken.JWT, error) {
+func (service *AuthService) RegisterUser(ctx context.Context, userData *models.UserAccountData) (jwttoken.JWT, error) {
 	var token jwttoken.JWT
 
 	_, err := service.store.GetAccountByUsername(ctx, userData.Username)

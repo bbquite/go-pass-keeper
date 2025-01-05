@@ -5,10 +5,11 @@ import "time"
 type DataTypeEnum string
 
 const (
-	DataTypePAIR   DataTypeEnum = "PAIR"
-	DataTypeTEXT   DataTypeEnum = "TEXT"
-	DataTypeBINARY DataTypeEnum = "BINARY"
-	DataTypeCARD   DataTypeEnum = "CARD"
+	DataTypeUNDEFINE DataTypeEnum = "UNDEFINE"
+	DataTypePAIR     DataTypeEnum = "PAIR"
+	DataTypeTEXT     DataTypeEnum = "TEXT"
+	DataTypeBINARY   DataTypeEnum = "BINARY"
+	DataTypeCARD     DataTypeEnum = "CARD"
 )
 
 type DataStoreFormat struct {
@@ -19,15 +20,9 @@ type DataStoreFormat struct {
 	UploadedAt time.Time    `json:"uploaded_at"`
 }
 
-type UserLoginData struct {
+type UserAccountData struct {
 	Username string `json:"login"`
 	Password string `json:"password"`
-}
-
-type UserRegisterData struct {
-	Username string `json:"login"`
-	Password string `json:"password"`
-	Email    string `json:"email"`
 }
 
 type Account struct {

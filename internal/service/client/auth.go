@@ -39,13 +39,12 @@ func NewClientAuthService(grpcClient *client.GRPCClient, store clientAuthStorage
 	}
 }
 
-func (service *ClientAuthService) RegisterUser(ctx context.Context, userData *models.UserRegisterData) error {
+func (service *ClientAuthService) RegisterUser(ctx context.Context, userData *models.UserAccountData) error {
 	var token jwttoken.JWT
 
 	resp, err := service.grpcClient.PBService.RegisterUser(ctx, &pb.RegisterUserRequest{
 		Username: userData.Username,
 		Password: userData.Password,
-		Email:    userData.Email,
 	})
 
 	if err != nil {
@@ -76,7 +75,7 @@ func (service *ClientAuthService) Debug() error {
 	return nil
 }
 
-func (service *ClientAuthService) AuthUser(ctx context.Context, userData *models.UserLoginData) error {
+func (service *ClientAuthService) AuthUser(ctx context.Context, userData *models.UserAccountData) error {
 	var token jwttoken.JWT
 
 	resp, err := service.grpcClient.PBService.AuthUser(ctx, &pb.AuthUserRequest{
