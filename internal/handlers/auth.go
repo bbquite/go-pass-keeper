@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"errors"
+
 	"github.com/bbquite/go-pass-keeper/internal/models"
 	pb "github.com/bbquite/go-pass-keeper/internal/proto"
 	serverServices "github.com/bbquite/go-pass-keeper/internal/service/server"
@@ -14,7 +15,6 @@ func (h *GRPCHandler) RegisterUser(ctx context.Context, in *pb.RegisterUserReque
 	userData := models.UserAccountData{
 		Username: in.Username,
 		Password: in.Password,
-		Email:    in.Email,
 	}
 
 	token, err := h.authService.RegisterUser(ctx, &userData)
@@ -35,7 +35,7 @@ func (h *GRPCHandler) RegisterUser(ctx context.Context, in *pb.RegisterUserReque
 }
 
 func (h *GRPCHandler) AuthUser(ctx context.Context, in *pb.AuthUserRequest) (*pb.AuthUserResponse, error) {
-	userData := models.UserLoginData{
+	userData := models.UserAccountData{
 		Username: in.Username,
 		Password: in.Password,
 	}

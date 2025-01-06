@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
 
 	clientApp "github.com/bbquite/go-pass-keeper/internal/app/client"
 	"github.com/bbquite/go-pass-keeper/internal/cli"
@@ -50,7 +51,11 @@ func main() {
 	}
 
 	cliClient := cli.NewClientCLI(grpcClient, logger)
-	cliClient.Run()
+	err = cliClient.Run()
+	if err != nil {
+		logger.Info(err)
+		os.Exit(0)
+	}
 
 	defer func() {
 		err := grpcClient.Close()

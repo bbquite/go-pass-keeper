@@ -13,8 +13,6 @@ import (
 	"go.uber.org/zap"
 )
 
-var ErrorCLIGracefullyStop = errors.New("cli gracefully stop")
-
 type ClientCLI struct {
 	commandManager *commands.CommandManager
 	logger         *zap.SugaredLogger
@@ -29,7 +27,7 @@ func NewClientCLI(grpcClient *client.GRPCClient, logger *zap.SugaredLogger) *Cli
 	}
 }
 
-func (cli *ClientCLI) Run() {
+func (cli *ClientCLI) Run() error {
 	var input string
 	scanner := bufio.NewScanner(os.Stdin)
 
@@ -47,6 +45,9 @@ func (cli *ClientCLI) Run() {
 
 		err := cli.exec(cmd, scanner)
 		if err != nil {
+			if errors.Is(err, commands.ErrorGracefullyStop) {
+				return err
+			}
 			color.Red("Error while executing commands: %v\n", err)
 		} else {
 			green := color.New(color.FgGreen)

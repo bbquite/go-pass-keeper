@@ -4,6 +4,9 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
+	"log"
+	"os"
+
 	"github.com/bbquite/go-pass-keeper/internal/app/client"
 	"github.com/bbquite/go-pass-keeper/internal/cli/validator"
 	"github.com/bbquite/go-pass-keeper/internal/models"
@@ -11,13 +14,12 @@ import (
 	"github.com/bbquite/go-pass-keeper/internal/storage/local"
 	"github.com/fatih/color"
 	"go.uber.org/zap"
-	"log"
-	"os"
 )
 
 var (
 	ErrorNoExecution    = errors.New("no commands execution found")
 	ErrorUnknownCommand = errors.New("unknown commands")
+	ErrorGracefullyStop = errors.New("cli gracefully stop")
 )
 
 type (
@@ -53,16 +55,15 @@ func (c *Command) GetSubCommandsNames() []string {
 }
 
 type CommandManager struct {
-	localStorage         *local.ClientStorage
-	authService          *clientService.ClientAuthService
-	dataService          *clientService.ClientDataService
-	authFilePath         string
-	pairExportFilePath   string
-	textExportFilePath   string
-	cardExportFilePath   string
-	binaryExportFilePath string
-	helpInfo             string
-	CommandRoot          CommandThree
+	localStorage       *local.ClientStorage
+	authService        *clientService.ClientAuthService
+	dataService        *clientService.ClientDataService
+	authFilePath       string
+	pairExportFilePath string
+	textExportFilePath string
+	cardExportFilePath string
+	helpInfo           string
+	CommandRoot        CommandThree
 }
 
 func NewCommandManager(grpcClient *client.GRPCClient, logger *zap.SugaredLogger) *CommandManager {
@@ -128,13 +129,13 @@ func (cm *CommandManager) initCommandsThree() {
 		"AUTH": {
 			Desc: "Authorization in the system by login and password",
 			Execute: func() error {
-				return cm.logINOUTAction(authParams, cm.authService.AuthUser)
+				return cm.accountAction(authParams, cm.authService.AuthUser)
 			},
 		},
 		"REGISTER": {
 			Desc: "Registration in the system",
 			Execute: func() error {
-				return cm.logINOUTAction(authParams, cm.authService.RegisterUser)
+				return cm.accountAction(authParams, cm.authService.RegisterUser)
 			},
 		},
 		"SHOW": {
@@ -173,6 +174,12 @@ func (cm *CommandManager) initCommandsThree() {
 			Execute: func() error {
 				log.Print(cm.helpInfo)
 				return nil
+			},
+		},
+		"EXIT": {
+			Desc: "Close CLI",
+			Execute: func() error {
+				return ErrorGracefullyStop
 			},
 		},
 	}

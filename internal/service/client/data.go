@@ -7,6 +7,7 @@ import (
 
 	"github.com/bbquite/go-pass-keeper/internal/app/client"
 	"github.com/bbquite/go-pass-keeper/internal/models"
+	"github.com/bbquite/go-pass-keeper/internal/models/converter"
 	pb "github.com/bbquite/go-pass-keeper/internal/proto"
 	jwttoken "github.com/bbquite/go-pass-keeper/pkg/jwt_token"
 	"go.uber.org/zap"
@@ -58,23 +59,26 @@ func (service *ClientDataService) Debug() error {
 	return nil
 }
 
-func (service *ClientDataService) CreateData(ctx context.Context, data *models.DataStoreFormat) error {
-
+func (service *ClientDataService) SetTokenHeader(ctx context.Context) (context.Context, error) {
 	token := service.store.GetToken()
 	if token == "" {
-		return fmt.Errorf("authorization only")
+		return nil, fmt.Errorf("authorization only")
 	}
 
 	ctx = metadata.AppendToOutgoingContext(ctx, "authorization", "Bearer "+service.store.GetToken())
 
-	_, err := service.grpcClient.PBService.CreateData(ctx, &pb.CreateDataRequest{
-		Data: &pb.DataItem{
-			DataType: pb.DataTypeEnum(pb.DataTypeEnum_value[string(data.DataType)]),
-			DataInfo: data.DataInfo,
-			Meta:     data.Meta,
-		},
-	})
+	return ctx, nil
+}
 
+func (service *ClientDataService) CreateData(ctx context.Context, data *models.DataStoreFormat) error {
+
+	ctx, err := service.SetTokenHeader(ctx)
+	if err != nil {
+		return err
+	}
+
+	pbData := converter.DataStoreFormatToProtoFormat(data)
+	_, err = service.grpcClient.PBService.CreateData(ctx, &pb.CreateDataRequest{Data: pbData})
 	if err != nil {
 		return err
 	}
@@ -84,22 +88,13 @@ func (service *ClientDataService) CreateData(ctx context.Context, data *models.D
 
 func (service *ClientDataService) UpdateData(ctx context.Context, data *models.DataStoreFormat) error {
 
-	token := service.store.GetToken()
-	if token == "" {
-		return fmt.Errorf("authorization only")
+	ctx, err := service.SetTokenHeader(ctx)
+	if err != nil {
+		return err
 	}
 
-	ctx = metadata.AppendToOutgoingContext(ctx, "authorization", "Bearer "+service.store.GetToken())
-
-	_, err := service.grpcClient.PBService.UpdateData(ctx, &pb.UpdateDataRequest{
-		Data: &pb.DataItem{
-			Id:       data.ID,
-			DataType: pb.DataTypeEnum(pb.DataTypeEnum_value[string(data.DataType)]),
-			DataInfo: data.DataInfo,
-			Meta:     data.Meta,
-		},
-	})
-
+	pbData := converter.DataStoreFormatToProtoFormat(data)
+	_, err = service.grpcClient.PBService.UpdateData(ctx, &pb.UpdateDataRequest{Data: pbData})
 	if err != nil {
 		return err
 	}
@@ -109,26 +104,23 @@ func (service *ClientDataService) UpdateData(ctx context.Context, data *models.D
 
 func (service *ClientDataService) DeleteData(ctx context.Context, dataID uint32) error {
 
-	token := service.store.GetToken()
-	if token == "" {
-		return fmt.Errorf("authorization only")
+	ctx, err := service.SetTokenHeader(ctx)
+	if err != nil {
+		return err
 	}
 
-	ctx = metadata.AppendToOutgoingContext(ctx, "authorization", "Bearer "+service.store.GetToken())
-
-	_, err := service.grpcClient.PBService.DeleteData(ctx, &pb.DeleteDataRequest{Id: dataID})
+	_, err = service.grpcClient.PBService.DeleteData(ctx, &pb.DeleteDataRequest{Id: dataID})
 	return err
 }
 
 func (service *ClientDataService) GetDataByID(ctx context.Context, dataID uint32) (models.DataStoreFormat, error) {
 
 	var resultData models.DataStoreFormat
-	token := service.store.GetToken()
-	if token == "" {
-		return resultData, fmt.Errorf("authorization only")
-	}
 
-	ctx = metadata.AppendToOutgoingContext(ctx, "authorization", "Bearer "+service.store.GetToken())
+	ctx, err := service.SetTokenHeader(ctx)
+	if err != nil {
+		return resultData, err
+	}
 
 	response, err := service.grpcClient.PBService.GetDataByID(ctx, &pb.GetDataByIDRequest{Id: dataID})
 	if err != nil {
@@ -145,12 +137,10 @@ func (service *ClientDataService) GetDataByID(ctx context.Context, dataID uint32
 
 func (service *ClientDataService) GetData(ctx context.Context) error {
 
-	token := service.store.GetToken()
-	if token == "" {
-		return fmt.Errorf("authorization only")
+	ctx, err := service.SetTokenHeader(ctx)
+	if err != nil {
+		return err
 	}
-
-	ctx = metadata.AppendToOutgoingContext(ctx, "authorization", "Bearer "+service.store.GetToken())
 
 	response, err := service.grpcClient.PBService.GetDataList(ctx, &pb.Empty{})
 	if err != nil {

@@ -4,14 +4,15 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"os"
+
 	"github.com/bbquite/go-pass-keeper/internal/utils"
 	jwttoken "github.com/bbquite/go-pass-keeper/pkg/jwt_token"
-	"os"
 
 	"github.com/bbquite/go-pass-keeper/internal/models"
 )
 
-func (cm *CommandManager) logINOUTAction(params CommandParams, action func(ctx context.Context, userData *models.UserAccountData) error) error {
+func (cm *CommandManager) accountAction(params CommandParams, action func(ctx context.Context, userData *models.UserAccountData) error) error {
 	paramsValidated := cm.validateParams(params)
 	loginData := &models.UserAccountData{
 		Username: paramsValidated["username"].value,
