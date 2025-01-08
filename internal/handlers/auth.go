@@ -11,7 +11,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func (h *GRPCHandler) RegisterUser(ctx context.Context, in *pb.RegisterUserRequest) (*pb.RegisterUserResponse, error) {
+func (h *GRPCHandler) RegisterUser(ctx context.Context, in *pb.UserAccountRequest) (*pb.UserAccountResponse, error) {
 	userData := models.UserAccountData{
 		Username: in.Username,
 		Password: in.Password,
@@ -29,12 +29,12 @@ func (h *GRPCHandler) RegisterUser(ctx context.Context, in *pb.RegisterUserReque
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return &pb.RegisterUserResponse{
+	return &pb.UserAccountResponse{
 		Token: token.Token,
 	}, nil
 }
 
-func (h *GRPCHandler) AuthUser(ctx context.Context, in *pb.AuthUserRequest) (*pb.AuthUserResponse, error) {
+func (h *GRPCHandler) AuthUser(ctx context.Context, in *pb.UserAccountRequest) (*pb.UserAccountResponse, error) {
 	userData := models.UserAccountData{
 		Username: in.Username,
 		Password: in.Password,
@@ -52,7 +52,7 @@ func (h *GRPCHandler) AuthUser(ctx context.Context, in *pb.AuthUserRequest) (*pb
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return &pb.AuthUserResponse{
+	return &pb.UserAccountResponse{
 		Token: token.Token,
 	}, nil
 }

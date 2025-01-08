@@ -4,8 +4,8 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
-	"log"
 	"os"
+	"strings"
 
 	"github.com/bbquite/go-pass-keeper/internal/app/client"
 	"github.com/bbquite/go-pass-keeper/internal/cli/validator"
@@ -34,24 +34,43 @@ type (
 	CommandParams  map[string]CommandParamsItem
 	CommandExecute func() error
 	CommandThree   map[string]Command
-
-	Command struct {
-		Desc        string
-		Usage       string
-		Execute     CommandExecute
-		Subcommands CommandThree
-	}
 )
+
+type Command struct {
+	Desc        string
+	Execute     CommandExecute
+	Subcommands CommandThree
+}
 
 func (c *Command) GetSubCommandsNames() []string {
 	if c.Subcommands != nil {
 		var cNames []string
-		for name, _ := range c.Subcommands {
+		for name := range c.Subcommands {
 			cNames = append(cNames, name)
 		}
 		return cNames
 	}
 	return nil
+}
+
+func (c *Command) GetCommandHelp(lvl int, cmd Command) string {
+	var resultHelp string
+
+	if len(cmd.Subcommands) > 0 {
+
+		lvlTab := strings.Repeat("    ", lvl)
+
+		for k, v := range cmd.Subcommands {
+			resultHelp += fmt.Sprintf("%s %s - %s\n", lvlTab, k, v.Desc)
+
+			if len(v.Subcommands) > 0 {
+				lvl += 1
+				resultHelp += cmd.GetCommandHelp(lvl, v)
+			}
+		}
+	}
+
+	return resultHelp
 }
 
 type CommandManager struct {
@@ -80,14 +99,17 @@ func NewCommandManager(grpcClient *client.GRPCClient, logger *zap.SugaredLogger)
 		pairExportFilePath: "./pairExport.json",
 		textExportFilePath: "./textExport.json",
 		cardExportFilePath: "./cardExport.json",
-		helpInfo:           "",
 	}
 
 	cm.initCommandsThree()
+	cm.generateHelpInfo()
+
 	err := cm.importTokenFromFile()
 	if err != nil {
-		fmt.Printf("auth file not found: %v\n", err)
+		fmt.Printf("auth file not found: %v\n\n", err)
 	}
+
+	fmt.Print(cm.helpInfo)
 
 	return cm
 }
@@ -124,6 +146,14 @@ func (cm *CommandManager) validateParams(params CommandParams) CommandParams {
 	return params
 }
 
+func (cm *CommandManager) generateHelpInfo() {
+	var help string
+	for k, cmd := range cm.CommandRoot {
+		help += fmt.Sprintf("\n%s - %s\n%s", k, cmd.Desc, cmd.GetCommandHelp(1, cmd))
+	}
+	cm.helpInfo = help + "\n"
+}
+
 func (cm *CommandManager) initCommandsThree() {
 	commandRoot := CommandThree{
 		"AUTH": {
@@ -132,7 +162,7 @@ func (cm *CommandManager) initCommandsThree() {
 				return cm.accountAction(authParams, cm.authService.AuthUser)
 			},
 		},
-		"REGISTER": {
+		"REG": {
 			Desc: "Registration in the system",
 			Execute: func() error {
 				return cm.accountAction(authParams, cm.authService.RegisterUser)
@@ -156,11 +186,10 @@ func (cm *CommandManager) initCommandsThree() {
 			Desc:        "Updating a record in the system",
 			Subcommands: cm.initUpdateCommands(),
 		},
-		"DELETE": {
+		"DEL": {
 			Desc: "Deleting a record in the system",
 			Execute: func() error {
-				var p CommandParams
-				return cm.checkTokenWrapper(models.DataTypeUNDEFINE, wrapIDParam(p), cm.deleteCommand)
+				return cm.checkTokenWrapper(models.DataTypeUNDEFINE, wrapIDParam(emptyParams), cm.deleteCommand)
 			},
 		},
 		"DEBUG": {
@@ -172,7 +201,7 @@ func (cm *CommandManager) initCommandsThree() {
 		"HELP": {
 			Desc: "Show help information",
 			Execute: func() error {
-				log.Print(cm.helpInfo)
+				fmt.Print(cm.helpInfo)
 				return nil
 			},
 		},
@@ -201,14 +230,14 @@ func (cm *CommandManager) initExportCommands() CommandThree {
 				return cm.checkTokenWrapper(models.DataTypeTEXT, p, cm.exportCommand)
 			},
 		},
-		"BINARY": {
+		"FILE": {
 			Desc: "Download binary data (by ID)",
 			Execute: func() error {
-				return cm.checkTokenWrapper(models.DataTypeBINARY, wrapIDParam(p), cm.exportCommand)
+				return cm.checkTokenWrapper(models.DataTypeBINARY, wrapIDParam(emptyParams), cm.exportCommand)
 			},
 		},
 		"CARD": {
-			Desc: "Creating card data",
+			Desc: "Download card data (ALL)",
 			Execute: func() error {
 				return cm.checkTokenWrapper(models.DataTypeCARD, p, cm.exportCommand)
 			},
@@ -223,7 +252,7 @@ func (cm *CommandManager) initCreateCommands() CommandThree {
 		"PAIR": {
 			Desc: "Create a key value pair",
 			Execute: func() error {
-				return cm.checkTokenWrapper(models.DataTypeTEXT, pairParams, cm.createCommand)
+				return cm.checkTokenWrapper(models.DataTypePAIR, pairParams, cm.createCommand)
 			},
 		},
 		"TEXT": {
@@ -232,7 +261,7 @@ func (cm *CommandManager) initCreateCommands() CommandThree {
 				return cm.checkTokenWrapper(models.DataTypeTEXT, textParams, cm.createCommand)
 			},
 		},
-		"BINARY": {
+		"FILE": {
 			Desc: "Creating binary data",
 			Execute: func() error {
 				return cm.checkTokenWrapper(models.DataTypeBINARY, binaryParams, cm.createCommand)
@@ -263,7 +292,7 @@ func (cm *CommandManager) initUpdateCommands() CommandThree {
 				return cm.checkTokenWrapper(models.DataTypeTEXT, wrapIDParam(textParams), cm.updateCommand)
 			},
 		},
-		"BINARY": {
+		"FILE": {
 			Desc: "Updating binary data",
 			Execute: func() error {
 				return cm.checkTokenWrapper(models.DataTypeBINARY, wrapIDParam(binaryParams), cm.updateCommand)

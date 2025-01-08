@@ -32,8 +32,8 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type PassKeeperServiceClient interface {
-	AuthUser(ctx context.Context, in *AuthUserRequest, opts ...grpc.CallOption) (*AuthUserResponse, error)
-	RegisterUser(ctx context.Context, in *RegisterUserRequest, opts ...grpc.CallOption) (*RegisterUserResponse, error)
+	AuthUser(ctx context.Context, in *UserAccountRequest, opts ...grpc.CallOption) (*UserAccountResponse, error)
+	RegisterUser(ctx context.Context, in *UserAccountRequest, opts ...grpc.CallOption) (*UserAccountResponse, error)
 	CreateData(ctx context.Context, in *CreateDataRequest, opts ...grpc.CallOption) (*CreateDataResponse, error)
 	GetDataList(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*GetDataResponse, error)
 	GetDataByID(ctx context.Context, in *GetDataByIDRequest, opts ...grpc.CallOption) (*GetDataByIDResponse, error)
@@ -49,9 +49,9 @@ func NewPassKeeperServiceClient(cc grpc.ClientConnInterface) PassKeeperServiceCl
 	return &passKeeperServiceClient{cc}
 }
 
-func (c *passKeeperServiceClient) AuthUser(ctx context.Context, in *AuthUserRequest, opts ...grpc.CallOption) (*AuthUserResponse, error) {
+func (c *passKeeperServiceClient) AuthUser(ctx context.Context, in *UserAccountRequest, opts ...grpc.CallOption) (*UserAccountResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(AuthUserResponse)
+	out := new(UserAccountResponse)
 	err := c.cc.Invoke(ctx, PassKeeperService_AuthUser_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -59,9 +59,9 @@ func (c *passKeeperServiceClient) AuthUser(ctx context.Context, in *AuthUserRequ
 	return out, nil
 }
 
-func (c *passKeeperServiceClient) RegisterUser(ctx context.Context, in *RegisterUserRequest, opts ...grpc.CallOption) (*RegisterUserResponse, error) {
+func (c *passKeeperServiceClient) RegisterUser(ctx context.Context, in *UserAccountRequest, opts ...grpc.CallOption) (*UserAccountResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(RegisterUserResponse)
+	out := new(UserAccountResponse)
 	err := c.cc.Invoke(ctx, PassKeeperService_RegisterUser_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -123,8 +123,8 @@ func (c *passKeeperServiceClient) DeleteData(ctx context.Context, in *DeleteData
 // All implementations must embed UnimplementedPassKeeperServiceServer
 // for forward compatibility.
 type PassKeeperServiceServer interface {
-	AuthUser(context.Context, *AuthUserRequest) (*AuthUserResponse, error)
-	RegisterUser(context.Context, *RegisterUserRequest) (*RegisterUserResponse, error)
+	AuthUser(context.Context, *UserAccountRequest) (*UserAccountResponse, error)
+	RegisterUser(context.Context, *UserAccountRequest) (*UserAccountResponse, error)
 	CreateData(context.Context, *CreateDataRequest) (*CreateDataResponse, error)
 	GetDataList(context.Context, *Empty) (*GetDataResponse, error)
 	GetDataByID(context.Context, *GetDataByIDRequest) (*GetDataByIDResponse, error)
@@ -140,10 +140,10 @@ type PassKeeperServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedPassKeeperServiceServer struct{}
 
-func (UnimplementedPassKeeperServiceServer) AuthUser(context.Context, *AuthUserRequest) (*AuthUserResponse, error) {
+func (UnimplementedPassKeeperServiceServer) AuthUser(context.Context, *UserAccountRequest) (*UserAccountResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AuthUser not implemented")
 }
-func (UnimplementedPassKeeperServiceServer) RegisterUser(context.Context, *RegisterUserRequest) (*RegisterUserResponse, error) {
+func (UnimplementedPassKeeperServiceServer) RegisterUser(context.Context, *UserAccountRequest) (*UserAccountResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RegisterUser not implemented")
 }
 func (UnimplementedPassKeeperServiceServer) CreateData(context.Context, *CreateDataRequest) (*CreateDataResponse, error) {
@@ -183,7 +183,7 @@ func RegisterPassKeeperServiceServer(s grpc.ServiceRegistrar, srv PassKeeperServ
 }
 
 func _PassKeeperService_AuthUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AuthUserRequest)
+	in := new(UserAccountRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -195,13 +195,13 @@ func _PassKeeperService_AuthUser_Handler(srv interface{}, ctx context.Context, d
 		FullMethod: PassKeeperService_AuthUser_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PassKeeperServiceServer).AuthUser(ctx, req.(*AuthUserRequest))
+		return srv.(PassKeeperServiceServer).AuthUser(ctx, req.(*UserAccountRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _PassKeeperService_RegisterUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RegisterUserRequest)
+	in := new(UserAccountRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -213,7 +213,7 @@ func _PassKeeperService_RegisterUser_Handler(srv interface{}, ctx context.Contex
 		FullMethod: PassKeeperService_RegisterUser_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PassKeeperServiceServer).RegisterUser(ctx, req.(*RegisterUserRequest))
+		return srv.(PassKeeperServiceServer).RegisterUser(ctx, req.(*UserAccountRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

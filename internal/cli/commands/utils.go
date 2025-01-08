@@ -2,12 +2,15 @@ package commands
 
 import (
 	"encoding/json"
+
 	"github.com/bbquite/go-pass-keeper/internal/cli/validator"
 	"github.com/bbquite/go-pass-keeper/internal/models"
 	"github.com/bbquite/go-pass-keeper/internal/utils"
 )
 
 var (
+	emptyParams = CommandParams{}
+
 	authParams = CommandParams{
 		"username": {validateFunc: validator.StringValidation},
 		"password": {validateFunc: validator.StringValidation},
